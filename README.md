@@ -1,4 +1,5 @@
 __Propriétés élémentaires :__
+
 IdProd, intituléProd, PrixCProd, DescProd, UrlProd, caracProd, valeurProd
 
 IdUtil, MailUtil, MdpUtil, NomUtil, PrenomUtil, AdrUtil,
