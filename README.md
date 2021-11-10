@@ -1,3 +1,13 @@
+# Documentation ProjetBD Groupe 5
+
+
+### __les liens importants__
+
+ - [google docs](https://docs.google.com/document/d/1b-AAK8kgm9GcqEW04x_09UjPTDIkSe-M58zEgZglvnQ/edit)
+ - [UML colaboratif](https://drive.google.com/file/d/1lO0r5_xNKQ7HWTG9Te2wFYVs2R2wrCxR/view?usp=sharing)
+
+<br>
+
 ### __Propriétés élémentaires :__
 
 idProd, intituléProd, prixCProd, descProd, urlProd
@@ -10,6 +20,7 @@ idCategorie, nomCategorie
 
 idOffre, dateOffre, heureOffre, prixOffre
 
+<br>
 
 ### __Dépendances fonctionnelles :__ 
 
@@ -32,7 +43,7 @@ Une offre est faite par un utilisateur pour un produit
 
 idOffre -> dateOffre, heureOffre, prixOffre, idProd, idUtil
 
-
+<br>
 
 ### __Contraintes de valeurs :__
 
@@ -40,7 +51,7 @@ PrixCProdut > 0
 
 prixOffre > 0
 
-
+<br>
 
 ### __Contraintes de multiplicité :__
 
@@ -57,18 +68,66 @@ idCategorie -|->> idCategorie
 
 idProd -|-> idOffre
 
+<br>
 
-
-
-### **Contraintes contextuelles :**
+### __Contraintes contextuelles :__
 
 __Pour une offre donné :__
 > “Une nouvelle offre doit avoir un prix (prixOffre) strictement supérieur au prix courant du produit (prixCProd)”
 
 > “Si une offre est ajoutée, le prix courant (prixCProd) du produit devient celui de l’offre (prixOffre)”
 
+<br>
 
-### __les liens importants__
+# 
 
- - [google docs](https://docs.google.com/document/d/1b-AAK8kgm9GcqEW04x_09UjPTDIkSe-M58zEgZglvnQ/edit)
- - [UML colaboratif](https://drive.google.com/file/d/1lO0r5_xNKQ7HWTG9Te2wFYVs2R2wrCxR/view?usp=sharing)
+
+### __Types d'entité__
+
+Produit(idProd, nomProd, prixCProd, descProd, urlProd)
+
+Utilisateur(idUtil, mailUtil, mdpUtil, nomUtil, prenomUtil, adrUtil)
+
+Categorie(idCategorie, nomCategorie)
+
+Offre(idOffre, dateOffre, heureOffre, prixOffre)
+
+CaracProduit(caracProd)
+
+<br>
+
+### __Types d'association__
+
+> un produit peut avoir des caractéristiques
+
+__Possede:__ idProd (1..*) -|->> (0..*) caracProd, valeurProd [propriété propre] 
+
+> une catégorie possède une ou plusieurs sous-catégorie.s
+
+__EstMereDe:__ idCategorie (0..1) -|->> (0..*) idCategorie 
+
+> une offre est associée à un produit
+
+__EnchereDe:__ idOffre (0..*) -> (1..1) idProduit 
+
+> une offre est associée à un utilisateur
+
+__EncherePar:__ idOffre (0..*) -> (1..1) idUtil 
+
+> une catégorie concerne plusieurs produits
+
+__CategorieDe:__ idCategorie (1..1) ->> (1..*) idProduit 
+
+
+<br>
+
+### __Sous-type d'entité__
+
+OffreGagnante associée à l’entité “Offre”
+- duplication pour accès en temps rapide
+
+<br>
+
+### __Propriétés propres__
+
+idProd, caracProd -> valeurProd
