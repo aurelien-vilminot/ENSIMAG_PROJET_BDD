@@ -1,7 +1,7 @@
 import java.util.Scanner;
 
 public class Interface {
-    private final String[] menuItems = new String[]{"Parcours catalogue", "Faire une enchère", "Droit à l'oubli"};
+    private final String[] menuItems = new String[]{"Parcours catalogue", "Droit à l'oubli"};
     private final String[] catalogeMenuItems = new String[]{"Catalague produits", "Catégories recommandées", "Retour"};
     private final String[] yesNoItems = new String[]{"Oui", "Non"};
 
@@ -30,7 +30,6 @@ public class Interface {
             }
             System.out.println("! Échec de la connexion !");
         }
-
         clearScreen();
     }
 
@@ -68,13 +67,13 @@ public class Interface {
                 menuShow(this.catalogeMenuItems);
                 catalogueMenuUserInput();
             }
-            case "2" -> this.database.makeBid();
-            case "3" -> forgetRights();
+            case "2" -> forgetRights();
             case "quit" -> {
                 System.out.println("Déconnection");
                 this.isRunning = false;
                 userConnection();
             }
+            default -> menuUserInput();
         }
     }
 
@@ -97,6 +96,7 @@ public class Interface {
                 this.isRunning = false;
                 userConnection();
             }
+            default -> forgetRights();
         }
     }
 
