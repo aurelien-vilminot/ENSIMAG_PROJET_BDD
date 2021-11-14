@@ -1,4 +1,6 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Database {
     private static final String CONN_URL = "jdbc:oracle:thin:@oracle1.ensimag.fr:1521:oracle1";
@@ -70,26 +72,27 @@ public class Database {
 //        }
     }
 
-    public boolean getCatalog(Integer idCategorie) {
-        // Renvoie True s'il y a encore des sous-caractéristques dispo, False sinon (il n'y que des produits à afficher)
+    public ArrayList<String> getCatalog(Integer idCategorie) {
+        // Renvoie un tableau de String s'il y a encore des sous-caractéristques dispo, null sinon (il n'y que des produits à afficher)
         if (idCategorie == null) {
-            // Affiche les catégories mères
+            // Renvoie un tableau de String s'il y a des catégories mères
         } else {
-            // Affiche les catégories contenues dans la catégorie
+            // Renvoie un tableau de String s'il y a des catégories contenues dans la catégorie
         }
-        return true;
+        return null;
     }
 
     public void getRecommendedCategories() {
 
     }
 
-    public void getProductList(int idCategory) {
-
+    public ArrayList<String> getProductList(int idCategory) {
+        return new ArrayList<>(Arrays.asList("product1", "product2", "product3"));
     }
 
-    public void getProduct(int idProduct) {
-
+    public ArrayList<String> getProduct(int idProduct) {
+        // Renvoie null si le produit est inconnu
+        return null;
     }
 
     public void makeBid() {
@@ -97,7 +100,13 @@ public class Database {
     }
 
     public void resetTable() {
-
+//        try {
+//            PreparedStatement statement = this.connection.prepareStatement("DELETE FROM USER");
+//            ResultSet resultSet = statement.executeQuery();
+//            closeStatement(statement, resultSet);
+//        } catch (SQLException throwables) {
+//            throwables.printStackTrace();
+//        }
     }
 
     public void fulfillTable() {

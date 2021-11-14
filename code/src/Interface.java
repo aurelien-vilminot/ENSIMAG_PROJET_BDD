@@ -1,15 +1,20 @@
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Interface {
-    private final String[] menuItems = new String[]{"Parcours catalogue", "Droit à l'oubli"};
-    private final String[] catalogeMenuItems = new String[]{"Catalague produits", "Catégories recommandées", "Retour"};
-    private final String[] yesNoItems = new String[]{"Oui", "Non"};
+    // String menu template : {"• Title •", "element1", ""element2"}
+    private final ArrayList<String> menuItems = new ArrayList<>(Arrays.asList("• MENU PRINCIPAL •", "Parcours catalogue", "Droit à l'oubli"));
+    private final ArrayList<String> catalogeMenuItems = new ArrayList<>(Arrays.asList("• MENU PRODUITS •", "Catalague produits", "Catégories recommandées", "Retour"));
+    private final ArrayList<String> yesNoItems = new ArrayList<>(Arrays.asList("• SUPPRESSION DÉFINITIVE •", "Oui", "Non"));
 
     private String userId;
     private String userPwd;
 
     private boolean isRunning;
     private final Database database;
+
+    private ArrayList<Integer> pathOfCategorie = new ArrayList<>();
 
     public Interface(Database database) {
         this.isRunning = true;
@@ -48,17 +53,17 @@ public class Interface {
         }
     }
 
-    public void menuShow(String [] menuItems) {
-        int i = 1;
-        for(String item : menuItems) {
-            System.out.println( i +") "+item);
-            i++;
+    public void menuShow(ArrayList<String> menuItems) {
+        // Display title
+        System.out.println(menuItems.get(0));
+        // Display elements
+        for (int i = 1; i < menuItems.size() ; ++i) {
+            System.out.println( i +") " + menuItems.get(i));
         }
         System.out.println("Votre choix :");
     }
 
     public void menuUserInput() {
-        System.out.println("• MENU •");
         menuShow(this.menuItems);
 
         switch (this.getInput()) {
@@ -100,24 +105,81 @@ public class Interface {
         }
     }
 
+    public void displayCategories(Integer idSubCategory) {
+        while (true) {
+            if (!this.pathOfCategorie.contains(idSubCategory)) {
+                // Add the id of current category to remember the path
+                this.pathOfCategorie.add(idSubCategory);
+            }
+            ArrayList<String> subCategories = this.database.getCatalog(idSubCategory);
+            if (subCategories == null) {
+                displayProductList(idSubCategory);
+                return;
+            }
+            subCategories.add("Retour");
+            int backId = subCategories.size() - 1;
+            System.out.println("Votre choix :");
+
+            try {
+                int input = Integer.parseInt(getInput());
+                if (input == backId) {
+                    // Back to the precedent category
+                    backToPrecCategory();
+                    return;
+                } else {
+                    displayCategories(input);
+                }
+            } catch (NumberFormatException e) {
+                // If the input is not correct, re-display the same categories
+                displayCategories(idSubCategory);
+            }
+        }
+    }
+
+    public void backToPrecCategory() {
+        int precCategoryID = this.pathOfCategorie.size() - 1;
+        Integer idSubCategory = this.pathOfCategorie.get(precCategoryID);
+        this.pathOfCategorie.remove(precCategoryID);
+        displayCategories(idSubCategory);
+    }
+
+    public void displayProductList(int idCategory) {
+        // Display products
+        ArrayList<String> productList = this.database.getProductList(idCategory);
+        ArrayList<String> menuProductList = new ArrayList<>();
+        menuProductList.add("Veuillez sélectionner un produit :");
+        menuProductList.addAll(productList);
+        menuProductList.add("Retour");
+        menuShow(menuProductList);
+        try {
+            int input = Integer.parseInt(getInput());
+            if (input == menuProductList.size() - 1) {
+                backToPrecCategory();
+                return;
+            }
+            ArrayList<String> productDetails = this.database.getProduct(input);
+            if (productDetails == null) {
+                displayProductList(idCategory);
+            } else {
+                displayProduct(productDetails);
+            }
+        } catch (NumberFormatException e) {
+            // If the input is not correct, re-display the same products
+            displayProductList(idCategory);
+        }
+    }
+
+    public void displayProduct(ArrayList<String> productDetails) {
+
+    }
+
     public void catalogueMenuUserInput() {
         menuShow(this.catalogeMenuItems);
-        System.out.println("Votre choix :");
 
         switch (this.getInput()) {
             case "1" -> {
                 // Display catalogue
-                Integer idSubCategorie = null;
-                while (true) {
-                    boolean isSubCategories = this.database.getCatalog(idSubCategorie);
-                    if (!isSubCategories) {
-                        // Display products7
-                        this.database.getProductList(idSubCategorie);
-                        break;
-                    }
-                    System.out.println("Votre choix :");
-                    idSubCategorie = Integer.valueOf(getInput());
-                }
+                displayCategories(null);
             }
             case "2" -> {
                 // Display catalogue with recommended categories
@@ -126,14 +188,13 @@ public class Interface {
                 int idCategory = Integer.parseInt(getInput());
                 this.database.getProductList(idCategory);
             }
-            case "3" -> {
-                menuUserInput();
-            }
+            case "3" -> menuUserInput();
             case "quit" -> {
                 System.out.println("Déconnection");
                 this.isRunning = false;
                 userConnection();
             }
+            default -> catalogueMenuUserInput();
         }
     }
 
