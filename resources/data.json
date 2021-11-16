@@ -1,0 +1,24 @@
+{
+    "tables": [
+        "Produit",
+        "Utilisateur",
+        "Categorie",
+        "Compte",
+        "Offre",
+        "CaracProduit",
+        "EstLiee",
+        "APourMere",
+        "OffreGagnante"
+    ],
+    "createTable": [
+        "CREATE TABLE Produit(\nidProd integer NOT NULL PRIMARY KEY,\nnomProd varchar(30) NOT NULL,\nprixCProd float CONSTRAINT PrixCPositif NOT NULL CHECK(prixCProd > 0),\ndescProd varchar(100) NOT NULL,\nurlProd varchar(100) NOT NULL,\nnomCategorie varchar(30) NOT NULL CONSTRAINT FKCategorieProd REFERENCES Categorie(nomCategorie));\n",
+        "CREATE TABLE Utilisateur(\nmailUtil varchar(30) NOT NULL PRIMARY KEY,\nmdpUtil varchar(30) NOT NULL,\nnomUtil varchar(30) NOT NULL,\nprenomUtil varchar(30) NOT NULL,\nadrUtil varchar(30) NOT NULL,\nidCompte integer NOT NULL CONSTRAINT FKCompteUtil REFERENCES Produit(idProd));\n",
+        "CREATE TABLE Categorie(\nnomCategorie varchar(30) NOT NULL PRIMARY KEY);\n",
+        "CREATE TABLE Compte(\nidCompte INTEGER NOT NULL PRIMARY KEY);\n",
+        "CREATE TABLE Offre(\nidProd integer CONSTRAINT FKProdOffre NOT NULL REFERENCES Produit (idProd),\ndateOffre date NOT NULL,\nprixOffre float CONSTRAINT PrixPositif NOT NULL CHECK(prixOffre > 0),\nCONSTRAINT PKOffre PRIMARY KEY (idProd, dateOffre, heureOffre));\n",
+        "CREATE TABLE CaracProduit(\nidProd integer NOT NULL CONSTRAINT FKidProCarac REFERENCES Produit(idProd),\ncaracProd varchar(30) NOT NULL,\nvaleurProd varchar(30) NOT NULL,\nCONSTRAINT PKCaracProduit PRIMARY KEY (idProd, caracProd));\n",
+        "CREATE TABLE EstLiee(\ndateOffre TIME NOT NULL REFERENCES Offre(dateOffre) PRIMARY KEY,\nidProd INTEGER CONSTRAINT FKProd NOT NULL REFERENCES Produit(IdProd));\n",
+        "CREATE TABLE APourMere(\nfilleCategorie varchar(30) CONSTRAINT FKfille NOT NULL REFERENCES Categorie(nomCategorie),\nmereCategorie varchar(30) CONSTRAINT FKmere NOT NULL REFERENCES Categorie(nomCategorie));\n",
+        "CREATE TABLE OffreGagnante (\ndateOffre TIME NOT NULL,\nidProd integer NOT NULL CONSTRAINT FKProdGagnant REFERENCES Produit(idProd),\nPRIMARY KEY (dateOffre, idProd));\n"
+    ]
+}

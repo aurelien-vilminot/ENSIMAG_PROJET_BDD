@@ -38,12 +38,12 @@ public class Interface {
         clearScreen();
     }
 
-    private String getInput() {
+    public static String getInput() {
         Scanner userInput = new Scanner(System.in);
         return userInput.next();
     }
 
-    private void clearScreen() {
+    public static void clearScreen() {
         // TODO: clear terminal
     }
 
@@ -53,7 +53,7 @@ public class Interface {
         }
     }
 
-    public void menuShow(ArrayList<String> menuItems) {
+    public static void menuShow(ArrayList<String> menuItems) {
         // Display title
         System.out.println(menuItems.get(0));
         // Display elements

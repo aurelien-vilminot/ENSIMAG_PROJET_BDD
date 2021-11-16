@@ -1,6 +1,8 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Database {
     private static final String CONN_URL = "jdbc:oracle:thin:@oracle1.ensimag.fr:1521:oracle1";
@@ -8,6 +10,7 @@ public class Database {
     private static final String PASSWD = "vilminoa";
 
     private Connection connection;
+    private JSONParse jsonParse;
 
     public Database() {
         try {
@@ -18,6 +21,8 @@ public class Database {
             System.err.println("Database connection failed");
             e.printStackTrace(System.err);
         }
+
+        this.jsonParse = new JSONParse();
     }
 
     public void closeConnection() {
@@ -99,18 +104,53 @@ public class Database {
 
     }
 
-    public void resetTable() {
-//        try {
-//            PreparedStatement statement = this.connection.prepareStatement("DELETE FROM USER");
-//            ResultSet resultSet = statement.executeQuery();
-//            closeStatement(statement, resultSet);
-//        } catch (SQLException throwables) {
-//            throwables.printStackTrace();
-//        }
+    public void dropTables() {
+        // Get all table names
+        Iterator<String> iterator = this.jsonParse.parseArray("tables");
+        while (iterator.hasNext()) {
+            String table = iterator.next();
+            try {
+                // Delete the specified table
+                PreparedStatement statement = this.connection.prepareStatement("DROP TABLE ?");
+                statement.setString(1, table);
+                ResultSet resultSet = statement.executeQuery();
+                closeStatement(statement, resultSet);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
     }
 
-    public void fulfillTable() {
+    public void resetTables() {
+        // Get all table names
+        Iterator<String> iterator = this.jsonParse.parseArray("tables");
+        while (iterator.hasNext()) {
+            String table = iterator.next();
+            try {
+                // Reset the specified table
+                // TRUNCATE is used to reset auto-increment
+                PreparedStatement statement = this.connection.prepareStatement("TRUNCATE TABLE ?");
+                statement.setString(1, table);
+                ResultSet resultSet = statement.executeQuery();
+                closeStatement(statement, resultSet);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+    }
 
+    public void createTable() {
+        Iterator<String> iterator = this.jsonParse.parseArray("createTable");
+        while (iterator.hasNext()) {
+            String createQuery = iterator.next();
+            try {
+                PreparedStatement statement = this.connection.prepareStatement(createQuery);
+                ResultSet resultSet = statement.executeQuery();
+                closeStatement(statement, resultSet);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
     }
 
 }
