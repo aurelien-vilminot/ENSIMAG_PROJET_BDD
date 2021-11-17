@@ -7,7 +7,8 @@ public class DatabaseManagement {
             "Supprimer les tables",
             "Remettre à zéro les tables",
             "Créer les tables",
-            "Insérer un jeu de test"
+            "Insérer un jeu de test (suppresion, création, insertion)",
+            "Quitter"
     ));
 
     public static void main(String[] args) {
@@ -25,9 +26,16 @@ public class DatabaseManagement {
                 main(args);
             }
             case "3" -> {
-                database.createTable();
+                database.createTables();
                 main(args);
             }
+            case "4" -> {
+                database.dropTables();
+                database.createTables();
+                database.fillTables();
+                main(args);
+            }
+            case "5" -> System.exit(0);
             default -> main(args);
         }
     }

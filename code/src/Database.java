@@ -206,7 +206,7 @@ public class Database {
         System.out.println("Remise à zéro terminée");
     }
 
-    public void createTable() {
+    public void createTables() {
         System.out.println("Création des tables\n...");
         Iterator<String> iterator = this.jsonParse.parseArray("createTable");
         while (iterator.hasNext()) {
@@ -220,6 +220,23 @@ public class Database {
             }
         }
         System.out.println("Création terminée");
+    }
+
+    public void fillTables() {
+        System.out.println("Remplissage des tables\n...");
+        Iterator<String> iterator = this.jsonParse.parseArray("fillTable");
+        while (iterator.hasNext()) {
+            String fillQuery = iterator.next();
+            try {
+                PreparedStatement statement = this.connection.prepareStatement(fillQuery);
+                statement.executeUpdate();
+                this.connection.commit();
+                statement.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+        System.out.println("Remplissage terminé");
     }
 
 }
