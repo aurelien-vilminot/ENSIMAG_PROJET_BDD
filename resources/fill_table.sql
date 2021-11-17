@@ -19,7 +19,17 @@ VALUES
         'Des chaussures qui conviennent à toute activité sportive',
         '/chaussures_sport_next',
         'Chaussures de sport'
-    ),
+    );
+
+INSERT INTO
+    Produit (
+        nomProd,
+        prixCProd,
+        descProd,
+        urlProd,
+        nomCategorie
+    )
+VALUES
     (
         'Chaussures de ville GEN',
         '69.99',
@@ -46,7 +56,18 @@ VALUES
         'Bertrand',
         '9 rue du loup Paris 75015',
         1
-    ),
+    );
+
+INSERT INTO
+    Utilisateur (
+        mailUtil,
+        mdpUtil,
+        nomUtil,
+        prenomUtil,
+        adrUtil,
+        idCompte
+    )
+VALUES
     (
         'jacques.bernard@gmail.com',
         'cestmonmotdepasse',
@@ -59,8 +80,16 @@ VALUES
 INSERT INTO
     Categorie (nomCategorie)
 VALUES
-    ('Chaussures'),
-    ('Chaussures de sport'),
+    ('Chaussures');
+
+INSERT INTO
+    Categorie (nomCategorie)
+VALUES
+    ('Chaussures de sport');
+
+INSERT INTO
+    Categorie (nomCategorie)
+VALUES
     ('Chaussures de ville');
 
 INSERT INTO
