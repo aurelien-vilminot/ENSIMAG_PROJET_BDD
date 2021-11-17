@@ -16,13 +16,19 @@ public class DatabaseManagement {
 
         Interface.menuShow(databaseManagement.menuItems);
         switch (Interface.getInput()) {
-            case "1" -> database.dropTables();
-            case "2" -> database.resetTables();
-            case "3" -> database.createTable();
+            case "1" -> {
+                database.dropTables();
+                main(args);
+            }
+            case "2" -> {
+                database.resetTables();
+                main(args);
+            }
+            case "3" -> {
+                database.createTable();
+                main(args);
+            }
             default -> main(args);
         }
-
-        database.dropTables();
-        database.createTable();
     }
 }
