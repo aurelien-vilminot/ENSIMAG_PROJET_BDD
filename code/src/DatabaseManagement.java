@@ -16,27 +16,28 @@ public class DatabaseManagement {
         Database database = new Database();
 
         Interface.menuShow(databaseManagement.menuItems);
-        switch (Interface.getInput()) {
-            case "1" -> {
-                database.dropTables();
-                main(args);
+        while (true) {
+            switch (Interface.getInput()) {
+                case "1" -> {
+                    database.dropTables();
+                    main(args);
+                }
+                case "2" -> {
+                    database.resetTables();
+                    main(args);
+                }
+                case "3" -> {
+                    database.createTables();
+                    main(args);
+                }
+                case "4" -> {
+                    database.dropTables();
+                    database.createTables();
+                    database.fillTables();
+                    main(args);
+                }
+                case "5" -> System.exit(0);
             }
-            case "2" -> {
-                database.resetTables();
-                main(args);
-            }
-            case "3" -> {
-                database.createTables();
-                main(args);
-            }
-            case "4" -> {
-                database.dropTables();
-                database.createTables();
-                database.fillTables();
-                main(args);
-            }
-            case "5" -> System.exit(0);
-            default -> main(args);
         }
     }
 }
