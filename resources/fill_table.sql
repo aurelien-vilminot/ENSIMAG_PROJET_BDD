@@ -4,7 +4,7 @@ INSERT INTO COMPTE (idCompte) VALUES (default);
 
 INSERT INTO Produit (nomProd, prixCProd, descProd, urlProd, nomCategorie) VALUES ('Chaussures de sport NEXT', 49.99, 'Des chaussures qui conviennent à toute activité sportive', '/chaussures_sport_next', 'Chaussures de sport');
 INSERT INTO Produit (nomProd, prixCProd, descProd, urlProd, nomCategorie) VALUES ('Chaussures de ville GEN', 69.99, 'Les dernières chaussures GEN', '/chaussures_ville_gen', 'Chaussures de ville');
-
+INSERT INTO Utilisateur (mailUtil, mdpUtil, nomUtil, prenomUtil, adrUtil, idCompte) VALUES ('test', 'test', 'Durand', 'Bertrand', '9 rue du loup Paris 75015', 1);
 INSERT INTO Utilisateur (mailUtil, mdpUtil, nomUtil, prenomUtil, adrUtil, idCompte) VALUES ('bertrand.durand@gmail.com', 'pass123', 'Durand', 'Bertrand', '9 rue du loup Paris 75015', 1);
 INSERT INTO Utilisateur (mailUtil, mdpUtil, nomUtil, prenomUtil, adrUtil, idCompte) VALUES ('jacques.bernard@gmail.com', 'cestmonmotdepasse', 'Bernard', 'Jacques', '14 chemin neuf Grenoble 38000', 2);
 
