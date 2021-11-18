@@ -91,7 +91,7 @@ public class Interface {
             case "1" -> {
                 // Delete user information
                 this.database.forgetRight(this.userId);
-                System.out.println("Suppression terminée. Déconnection");
+                System.out.println("Déconnection");
                 this.isRunning = false;
                 userConnection();
             }

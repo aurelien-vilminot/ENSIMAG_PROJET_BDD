@@ -33,36 +33,42 @@ public class Database {
         }
     }
 
-    public void closeStatement(PreparedStatement statement, ResultSet resultSet) {
+    private void closeStatement(PreparedStatement statement, ResultSet resultSet) {
         try {
-            resultSet.close();
+            if (resultSet != null) {
+                resultSet.close();
+            }
             statement.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
     }
 
+    private void closeStatementAndCommit(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
+        closeStatement(preparedStatement, resultSet);
+        this.connection.commit();
+    }
+
     public boolean userConnection(String email, String password) {
         // Return true if user id/pwd is correct
+        boolean returnState = false;
         try {
-            PreparedStatement statement = this.connection.prepareStatement("" +
-                    "SELECT MAILUTIL FROM UTILISATEUR WHERE MAILUTIL =? AND MDPUTIL =?"
+            PreparedStatement statement = this.connection.prepareStatement(
+                    "SELECT COUNT(*) FROM UTILISATEUR WHERE MAILUTIL =? AND MDPUTIL =?"
             );
             statement.setString(1, email);
             statement.setString(2, password);
             ResultSet resultSet = statement.executeQuery();
 
-            if (resultSet.getFetchSize() == 1) {
-                // If there is one rows corresponding to a user, this means that the user's information are correct
-                closeStatement(statement, resultSet);
-                return true;
+            if (resultSet.next() && resultSet.getInt(1) == 1) {
+                // If the result of row count is 1, this means that the user's information are correct
+                returnState = true;
             }
             closeStatement(statement, resultSet);
-
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        return false;
+        return returnState;
     }
 
     public void forgetRight(String email) {
@@ -70,8 +76,8 @@ public class Database {
         try {
             PreparedStatement statement = this.connection.prepareStatement("DELETE FROM UTILISATEUR WHERE MAILUTIL=?");
             statement.setString(1, email);
-            ResultSet resultSet = statement.executeQuery();
-            closeStatement(statement, resultSet);
+            statement.executeUpdate();
+            closeStatementAndCommit(statement, null);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -198,7 +204,7 @@ public class Database {
                 // TRUNCATE is used to reset auto-increment
                 PreparedStatement statement = this.connection.prepareStatement(query);
                 statement.executeUpdate();
-                statement.close();
+                closeStatement(statement, null);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
@@ -214,7 +220,7 @@ public class Database {
             try {
                 PreparedStatement statement = this.connection.prepareStatement(createQuery);
                 statement.executeUpdate();
-                statement.close();
+                closeStatement(statement, null);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
@@ -230,8 +236,7 @@ public class Database {
             try {
                 PreparedStatement statement = this.connection.prepareStatement(fillQuery);
                 statement.executeUpdate();
-                this.connection.commit();
-                statement.close();
+                closeStatementAndCommit(statement, null);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
