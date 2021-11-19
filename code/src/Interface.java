@@ -1,11 +1,12 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class Interface {
     // String menu template : {"• Title •", "element1", ""element2"}
     private final ArrayList<String> menuItems = new ArrayList<>(Arrays.asList("• MENU PRINCIPAL •", "Parcours catalogue", "Droit à l'oubli"));
-    private final ArrayList<String> catalogeMenuItems = new ArrayList<>(Arrays.asList("• MENU PRODUITS •", "Catalague produits", "Catégories recommandées", "Retour"));
+    private final ArrayList<String> catalogeMenuItems = new ArrayList<>(Arrays.asList("• MENU CATALOGUES •", "Catalague produits", "Catégories recommandées", "Retour"));
     private final ArrayList<String> yesNoItems = new ArrayList<>(Arrays.asList("• SUPPRESSION DÉFINITIVE •", "Oui", "Non"));
 
     private String userId;
@@ -111,14 +112,27 @@ public class Interface {
                 // Add the id of current category to remember the path
                 this.pathOfCategorie.add(nameSubCategory);
             }
+
+            // Init the title menu
+            ArrayList<String> arrayToDisplay = new ArrayList<>();
+            if (nameSubCategory != null) {
+                arrayToDisplay.add("• Catégorie : " + nameSubCategory + " •");
+            } else {
+                arrayToDisplay.add("• CATÉGORIES/PRODUITS •");
+            }
+
             ArrayList<String> subCategories = this.database.getCatalog(nameSubCategory);
-            if (subCategories == null) {
+            ArrayList<String> subCategoriesProducts = this.database.getProductList(nameSubCategory);
+            if (subCategories.size() == 0) {
                 displayProductList(nameSubCategory);
                 return;
             }
+            // Add products to the list
+            subCategories.addAll(subCategoriesProducts);
             subCategories.add("Retour");
-            int backId = subCategories.size() - 1;
-            System.out.println("Votre choix :");
+            arrayToDisplay.addAll(subCategories);
+            menuShow(arrayToDisplay);
+            int backId = arrayToDisplay.size() - 1;
 
             try {
                 int input = Integer.parseInt(getInput());
@@ -137,6 +151,12 @@ public class Interface {
     }
 
     public void backToPrecCategory() {
+        // If the user is at the first categories, back to catalogue menu
+        if (this.pathOfCategorie.size() == 1) {
+            catalogueMenuUserInput();
+        }
+
+        // Else back to the previous category
         int precCategoryID = this.pathOfCategorie.size() - 1;
         String nameSubCategory = this.pathOfCategorie.get(precCategoryID);
         this.pathOfCategorie.remove(precCategoryID);

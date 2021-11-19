@@ -85,7 +85,8 @@ public class Database {
     }
 
     public ArrayList<String> getCatalog(String nameCategorie) {
-        // Renvoie un tableau de String s'il y a encore des sous-caractéristques dispo, null sinon (il n'y que des produits à afficher)
+        // Renvoie un tableau de String s'il y a encore des sous-caractéristques dispo
+        // Si le tableau est vide, il n'y que des produits à afficher
         ArrayList<String> result = new ArrayList<>();
 
         if (nameCategorie == null) {
@@ -118,14 +119,8 @@ public class Database {
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
-            return result;
         }
-
-        if (result.size() == 0) {
-            return null;
-        } else {
-            return result;
-        }
+        return result;
     }
 
     public ArrayList<String> getRecommendedCategories() {
