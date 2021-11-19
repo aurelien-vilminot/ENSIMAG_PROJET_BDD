@@ -92,8 +92,8 @@ public class Database {
             // Renvoie un tableau de String s'il y a des catégories mères
             try {
                 PreparedStatement statement = this.connection.prepareStatement(
-                        "SELECT CATEGORIE.NOMCATEGORIE FROM CATEGORIE, APOURMERE " +
-                                "WHERE CATEGORIE.NOMCATEGORIE != APOURMERE.FILLECATEGORIE"
+                        "SELECT NOMCATEGORIE FROM CATEGORIE " +
+                                "WHERE NOMCATEGORIE NOT IN (SELECT FILLECATEGORIE FROM APOURMERE)"
                 );
                 ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
