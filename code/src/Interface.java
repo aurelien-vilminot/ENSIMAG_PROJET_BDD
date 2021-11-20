@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 public class Interface {
     // String menu template : {"• Title •", "element1", ""element2"}
     private final ArrayList<String> menuItems = new ArrayList<>(Arrays.asList("• MENU PRINCIPAL •", "Parcours catalogue", "Droit à l'oubli"));
-    private final ArrayList<String> catalogeMenuItems = new ArrayList<>(Arrays.asList("• MENU CATALOGUES •", "Catalague produits", "Catégories recommandées", "Retour"));
+    private final ArrayList<String> catalogeMenuItems = new ArrayList<>(Arrays.asList("• MENU CATALOGUES •", "Catalogue produits", "Catégories recommandées", "Retour"));
     private final ArrayList<String> yesNoItems = new ArrayList<>(Arrays.asList("• SUPPRESSION DÉFINITIVE •", "Oui", "Non"));
 
     private String userId;
@@ -212,9 +212,9 @@ public class Interface {
             }
             case "2" -> {
                 // Display catalogue with recommended categories
-                ArrayList<String> recommendedCatagories = this.database.getRecommendedCategories();
+                ArrayList<String> recommendedCategories = this.database.getRecommendedCategories();
                 System.out.println("Votre choix :");
-                this.database.getProductList(recommendedCatagories.get(Integer.parseInt(getInput())));
+                this.database.getProductList(recommendedCategories.get(Integer.parseInt(getInput())));
             }
             case "3" -> menuUserInput();
             case "quit" -> {

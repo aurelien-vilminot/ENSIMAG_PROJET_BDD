@@ -16,7 +16,7 @@ public class JSONParse {
             Object obj = new JSONParser().parse(new FileReader(this.fileName));
             this.jsonFile = (JSONObject) obj;
         } catch (IOException | ParseException e) {
-            System.out.println("Une erreure est parvenue lors de la lecture du fichier JSON.");
+            System.out.println("Une erreur est parvenue lors de la lecture du fichier JSON.");
         }
     }
 
