@@ -1,7 +1,5 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Interface {
     // String menu template : {"• Title •", "element1", ""element2"}
@@ -107,6 +105,7 @@ public class Interface {
     }
 
     public void displayCategories(String nameSubCategory) {
+        System.out.println("nameSubCategory" + nameSubCategory);
         while (true) {
             if (!this.pathOfCategorie.contains(nameSubCategory)) {
                 // Add the id of current category to remember the path
@@ -122,7 +121,10 @@ public class Interface {
             }
 
             ArrayList<String> subCategories = this.database.getCatalog(nameSubCategory);
-            ArrayList<String> subCategoriesProducts = this.database.getProductList(nameSubCategory);
+            List<String> subCategoriesProducts =
+                    this.database.getProductList(nameSubCategory)
+                            .stream().map(Database.ProductSummary::name) // get only the name
+                            .collect(Collectors.toList());
             if (subCategories.size() == 0) {
                 displayProductList(nameSubCategory);
                 return;
@@ -141,7 +143,9 @@ public class Interface {
                     backToPrecCategory();
                     return;
                 } else {
-                    displayCategories(subCategories.get(input));
+                    // The user input is indexed starting from 1:
+                    // subtract 1 to get the correct category index
+                    displayCategories(subCategories.get(input - 1));
                 }
             } catch (NumberFormatException e) {
                 // If the input is not correct, re-display the same categories
@@ -157,18 +161,19 @@ public class Interface {
         }
 
         // Else back to the previous category
+        this.pathOfCategorie.remove(this.pathOfCategorie.size() - 1);
         int precCategoryID = this.pathOfCategorie.size() - 1;
         String nameSubCategory = this.pathOfCategorie.get(precCategoryID);
-        this.pathOfCategorie.remove(precCategoryID);
         displayCategories(nameSubCategory);
     }
 
     public void displayProductList(String nameCategory) {
         // Display products
-        ArrayList<String> productList = this.database.getProductList(nameCategory);
+        List<Database.ProductSummary> productList = this.database.getProductList(nameCategory);
         ArrayList<String> menuProductList = new ArrayList<>();
         menuProductList.add("Veuillez sélectionner un produit :");
-        menuProductList.addAll(productList);
+        menuProductList.addAll(productList
+                .stream().map(Database.ProductSummary::name).collect(Collectors.toList()));
         menuProductList.add("Retour");
         menuShow(menuProductList);
         try {
@@ -177,12 +182,11 @@ public class Interface {
                 backToPrecCategory();
                 return;
             }
-            ArrayList<String> productDetails = this.database.getProduct(input);
-            if (productDetails == null) {
-                displayProductList(nameCategory);
-            } else {
-                displayProduct(productDetails);
-            }
+            // User input is indexed starting at 1
+            int productId = productList.get(input - 1).id();
+            ArrayList<String> product = this.database.getProduct(productId);
+            displayProduct(product);
+            displayProductList(nameCategory);
         } catch (NumberFormatException e) {
             // If the input is not correct, re-display the same products
             displayProductList(nameCategory);
@@ -190,7 +194,12 @@ public class Interface {
     }
 
     public void displayProduct(ArrayList<String> productDetails) {
-
+        // same format as in database
+        System.out.println("• Produit: "+productDetails.get(0)+" •");
+        System.out.println("Prix: "+productDetails.get(1));
+        System.out.println("Description: "+productDetails.get(2));
+        System.out.println("URL: "+productDetails.get(3));
+        System.out.println("Catégorie: "+productDetails.get(4));
     }
 
     public void catalogueMenuUserInput() {

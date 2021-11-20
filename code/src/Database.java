@@ -1,8 +1,5 @@
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class Database {
     private static final String CONN_URL = "jdbc:oracle:thin:@oracle1.ensimag.fr:1521:oracle1";
@@ -128,17 +125,21 @@ public class Database {
         return null;
     }
 
-    public ArrayList<String> getProductList(String nameCategory) {
-        ArrayList<String> result = new ArrayList<>();
+    public record ProductSummary(int id, String name) {}
+    /** Returns a list of product ids & product names, useful to display the list.
+     * The product id is useful to get more info about the product later */
+    public List<ProductSummary> getProductList(String nameCategory) {
+        List<ProductSummary> result = new ArrayList<>();
 
         try {
             PreparedStatement statement = this.connection.prepareStatement(
-                    "SELECT NOMPROD FROM PRODUIT WHERE NOMCATEGORIE=?"
+                    "SELECT IDPROD, NOMPROD FROM PRODUIT WHERE NOMCATEGORIE=?"
             );
             statement.setString(1, nameCategory);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                result.add(resultSet.getString(1));
+                result.add(new ProductSummary(
+                        resultSet.getInt(1), resultSet.getString(2)));
             }
             closeStatement(statement, resultSet);
         } catch (SQLException throwables) {
