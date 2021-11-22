@@ -10,6 +10,7 @@ public class Interface {
 
     private String userId;
     private String userPwd;
+    private int idCompte;
 
     private boolean isRunning;
     private final Database database;
@@ -30,6 +31,7 @@ public class Interface {
             System.out.println("Saisir votre mot de passse :");
             this.userPwd = getInput();
             if (this.database.userConnection(this.userId, this.userPwd)) {
+                this.idCompte = this.database.getIdCompte(this.userMail);
                 System.out.println("Connexion réussie !");
                 break;
             }
@@ -220,7 +222,7 @@ public class Interface {
             }
             case "2" -> {
                 // Display catalogue with recommended categories
-                ArrayList<String> recommendedCategories = this.database.getRecommendedCategories();
+                ArrayList<String> recommendedCategories = this.database.getRecommendedCategories(idCompte);
                 System.out.println("Votre choix :");
                 this.database.getProductList(recommendedCategories.get(Integer.parseInt(getInput())));
             }
