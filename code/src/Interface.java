@@ -126,6 +126,7 @@ public class Interface {
                     this.database.getProductList(nameSubCategory)
                             .stream().map(Database.ProductSummary::name) // get only the name
                             .collect(Collectors.toList());
+
             if (subCategories.size() == 0) {
                 displayProductList(nameSubCategory);
                 return;
@@ -164,14 +165,11 @@ public class Interface {
 
         // Else back to the previous category
         this.pathOfCategorie.remove(this.pathOfCategorie.size() - 1);
-        int precCategoryID = this.pathOfCategorie.size() - 1;
-        String nameSubCategory = this.pathOfCategorie.get(precCategoryID);
-        displayCategories(nameSubCategory);
+        displayCategories(this.pathOfCategorie.get(this.pathOfCategorie.size() - 1));
     }
 
     public void displayProductList(String nameCategory) {
         // Display products
-        System.out.println(this.pathOfCategorie);
         List<Database.ProductSummary> productList = this.database.getProductList(nameCategory);
         ArrayList<String> menuProductList = new ArrayList<>();
         menuProductList.add("Veuillez sélectionner un produit :");
@@ -181,13 +179,14 @@ public class Interface {
         menuShow(menuProductList);
         try {
             int input = Integer.parseInt(getInput());
-            if (input == menuProductList.size() - 1) {
+            if (input == menuProductList.size()-1) {
                 backToPrecCategory();
                 return;
             }
             // User input is indexed starting at 1
             int productId = productList.get(input - 1).id();
             ArrayList<String> product = this.database.getProduct(productId);
+            this.pathOfCategorie.add(nameCategory);
             displayProduct(product);
         } catch (NumberFormatException e) {
             // If the input is not correct, re-display the same products
