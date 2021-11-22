@@ -5,7 +5,7 @@
 
  - [google docs](https://docs.google.com/document/d/1b-AAK8kgm9GcqEW04x_09UjPTDIkSe-M58zEgZglvnQ/edit)
  - [UML colaboratif](https://drive.google.com/file/d/1lO0r5_xNKQ7HWTG9Te2wFYVs2R2wrCxR/view?usp=sharing)
-
+ https://prod.liveshare.vsengsaas.visualstudio.com/join?82CBDE4CE2C2A24B5B8AC777696EB7F04780
 <br>
 
 ### __Propriétés élémentaires :__
