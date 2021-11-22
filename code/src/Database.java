@@ -154,24 +154,36 @@ public class Database {
         // 2) Recommandations générales
         //      |_ catégories pour lesquelles il y a le plus d'offres en moyenne par produit (avec ou sans achat), classées par ordre décroissant du nombre moyen d'offres par produit
 
-        // Recommandations personnalisées
         // TODO
+        
+        // Recommandations personnalisées
         try {
             PreparedStatement statement = this.connection.prepareStatement(
                     "SELECT p.nomProd " +
-                            "FROM Offre o, Produit p " +
-                            "WHERE o.idCompte = ? " +
-                            "AND o.idProd = p.idProd " +
-                            "AND NOT EXISTS (SELECT * " +
-                                            "FROM OffreGagnante og " +
-                                            "WHERE o.dateOffre = og.dateOffre " +
-                                            "AND o.idProd = og.idProd)"
+                    "FROM Offre o, Produit p " +
+                    "WHERE o.idCompte = ? " +
+                    "AND o.idProd = p.idProd " +
+                    "AND NOT EXISTS (SELECT * " +
+                                    "FROM OffreGagnante og " +
+                                    "WHERE o.dateOffre = og.dateOffre " +
+                                    "AND o.idProd = og.idProd)"
             );
             statement.setInt(1, idCompte);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
+        // Recommandations générales
+        try {
+            PreparedStatement statement = this.connection.prepareStatement(
+                "SELECT c.nomCategorie, count(o.dateOffre)/count(DISTINCT o.idProd) as Moyenne" +
+                "FROM Offre o, Categorie c, Produit p" +
+                "WHERE o.idProd = p.idProd AND p.nomCategorie = c.nomCategorie" +
+                "GROUP BY c.nomCategorie"
+            );
+        } catch (SQLException throwables) {
+                throwables.printStackTrace();
+        }
         return null;
     }
 

@@ -4,5 +4,7 @@
     "INSERT INTO Categorie (nomCategorie) VALUES ('nomcategorie')",
     "INSERT INTO APOURMERE (filleCategorie, mereCategorie) VALUES ('fille', 'mere')",
     "INSERT INTO Produit (nomProd, prixCProd, descProd, urlProd, nomCategorie) VALUES ('nomProd', 0.00, 'description', '/url', 'categorie')",
-    "INSERT INTO CARACPRODUIT (idProd, caracProd, valeurProd) VALUES (id, 'carac', 'valeur')"
+    "INSERT INTO CARACPRODUIT (idProd, caracProd, valeurProd) VALUES (id, 'carac', 'valeur')",
+    "CREATE TABLE Offre(idProd,dateOffre date ,prixOffre float, idCompte integer",
+    "INSERT INTO Offre (idProd, dateOffre, prixOffre, idCompte) VALUES (idProd, TO_DATE('2021/11/17 10:27:44', 'yyyy/mm/dd hh24:mi:ss'), 10.00, idCompte)"
 ]
