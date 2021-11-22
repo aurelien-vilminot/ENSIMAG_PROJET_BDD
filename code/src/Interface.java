@@ -8,7 +8,7 @@ public class Interface {
     private final ArrayList<String> yesNoItems = new ArrayList<>(Arrays.asList("• SUPPRESSION DÉFINITIVE •", "Oui", "Non"));
     private final ArrayList<String> bidItems = new ArrayList<>(Arrays.asList("Voulez-vous faire une offre sur ce produit ?", "Oui", "Non"));
 
-    private String userId;
+    private String userMail;
     private String userPwd;
     private int idCompte;
 
@@ -27,10 +27,10 @@ public class Interface {
         while (true) {
             System.out.println("• CONNEXION UTILISATEUR •");
             System.out.println("Saisir votre e-mail :");
-            this.userId = getInput();
+            this.userMail = getInput();
             System.out.println("Saisir votre mot de passse :");
             this.userPwd = getInput();
-            if (this.database.userConnection(this.userId, this.userPwd)) {
+            if (this.database.userConnection(this.userMail, this.userPwd)) {
                 this.idCompte = this.database.getIdCompte(this.userMail);
                 System.out.println("Connexion réussie !");
                 break;
@@ -91,7 +91,7 @@ public class Interface {
         switch (getInput()) {
             case "1" -> {
                 // Delete user information
-                this.database.forgetRight(this.userId);
+                this.database.forgetRight(this.userMail);
                 System.out.println("Déconnection");
                 this.isRunning = false;
                 userConnection();

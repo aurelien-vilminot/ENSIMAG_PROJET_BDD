@@ -30,87 +30,76 @@ public class Database {
         }
     }
 
-    public void ajouterOffre(Offre offre) {
-		try {
+    public void addOffer(Offre offre) {
+        try {
 
-			// Creation de la requete 1
-			PreparedStatement insertStmt = this.connection.prepareStatement("insert into OFFRE values (?, ?, ?)");
-			insertStmt.setInt(1, offre.getIdProduct());
-			insertStmt.setString(2, offre.getDate());
-			insertStmt.setFloat(3, offre.getPrice());
+            // Creation de la requete 1
+            //TODO: insérer l'id du compte
+            PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFRE VALUES (?, ?, ?)");
+            insertStmt.setInt(1, offre.getIdProduct());
+            insertStmt.setString(2, offre.getDate());
+            insertStmt.setFloat(3, offre.getPrice());
 
-			ResultSet rset1 = insertStmt.executeQuery();
+            insertStmt.executeUpdate();
+            closeStatementAndCommit(insertStmt, null);
 
-			rset1.close();
-			insertStmt.close();
+            PreparedStatement updateStmt = this.connection.prepareStatement(
+                    "UPDATE PRODUIT SET PrixCProd=? WHERE IDPROD=?"
+            );
+            updateStmt.setFloat(1, offre.getPrice());
+            updateStmt.setInt(2, offre.getIdProduct());
 
-			PreparedStatement updateStmt = this.connection.prepareStatement("update PRODUIT set PrixCProd=? where IdProduit=?");
-			updateStmt.setFloat(1, offre.getPrice());
-			updateStmt.setInt(2, offre.getIdProduct());
+            updateStmt.executeUpdate();
+            closeStatementAndCommit(updateStmt, null);
 
-			// Execution de la requete 2
-			ResultSet rset2 = updateStmt.executeQuery();
-
-			System.out.println("ajout d'une ligne dans la table OFFRE et modification du prix du produit correspondant dans la table PRODUIT");
-
-
-			// Fermeture
-			rset2.close();
-			updateStmt.close();
-			System.out.println("closing statements ok");
-		} catch (SQLException e) {
-		System.err.println("failed");
-		e.printStackTrace(System.err);
-		}
-	}
-
-    public  ArrayList<String> offerInfos(int idProduit){
-		try {
-
-			// Creation de la requete
-			PreparedStatement stmt = this.connection.prepareStatement("select p.PrixCProd, COUNT(o.dateOffre,idProduit) as NbOffres FROM products p " +
-																	  "JOIN offre o on p.idproduit=o.idproduit WHERE p.idproduit = ? " +
-																	  "GROUP BY  p.PrixCProd ");
-			stmt.setInt(1, idProduit);
-
-			// Execution de la requete
-			ResultSet rset = stmt.executeQuery();
-
-			// Affichage du resultat
-			ArrayList<String> result = new ArrayList<String>();
-			while(rset.next()) {
-				result.add(rset.getString(1));
-				result.add(rset.getString(2));
-			}
-			// Fermeture
-			rset.close();
-			stmt.close();
-			return result;
-		}
-		catch (SQLException e)
-		{
-			System.err.println("failed");
-			e.printStackTrace(System.err);
-			return null;
-		}
-	}
-
-public void mettreOffreGagnante(Offre offre) {
-	try {	
-        PreparedStatement insertStmt = this.connection.prepareStatement("insert into OFFREGAGNANTE values (?, ?, ?)");
-		insertStmt.setInt(1, offre.getIdProduct());
-		insertStmt.setString(2, offre.getDate());
-		insertStmt.setFloat(3, offre.getPrice()); 
-
-		ResultSet rset1 = insertStmt.executeQuery();
-		rset1.close();
-		insertStmt.close();
-
-	} catch (SQLException e) {
-        System.err.println("failed");
-		e.printStackTrace(System.err);
+            System.out.println("ajout d'une ligne dans la table OFFRE et modification du prix du produit correspondant dans la table PRODUIT");
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
     }
-}	
+
+    public ArrayList<String> offerInfos(int idProduit) {
+        try {
+            // Creation de la requete
+            PreparedStatement stmt = this.connection.prepareStatement("" +
+                    "SELECT p.PRIXCPROD, COUNT(dateOffre, o.IDPROD) as NbOffres " +
+                    "FROM PRODUIT p, OFFRE o " +
+                    "WHERE p.IDPROD = o.IDPROD " +
+                    "AND p.IDPROD = ? " +
+                    "GROUP BY  p.PrixCProd ");
+            stmt.setInt(1, idProduit);
+
+            // Execution de la requete
+            ResultSet rset = stmt.executeQuery();
+
+            // Affichage du resultat
+            ArrayList<String> result = new ArrayList<String>();
+            while (rset.next()) {
+                result.add(rset.getString(1));
+                result.add(rset.getString(2));
+            }
+
+            closeStatement(stmt, rset);
+            return result;
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+            return null;
+        }
+    }
+
+    public void setOfferWin(Offre offre) {
+        try {
+            PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFREGAGNANTE VALUES (?, ?)");
+            insertStmt.setString(1, offre.getDate());
+            insertStmt.setInt(2, offre.getIdProduct());
+
+            insertStmt.executeUpdate();
+            closeStatementAndCommit(insertStmt, null);
+
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
+    }
 
     private void closeStatement(PreparedStatement statement, ResultSet resultSet) {
         try {
@@ -150,9 +139,21 @@ public void mettreOffreGagnante(Offre offre) {
         return returnState;
     }
 
-    public String getIdCompte(String userMail) {
-        // TODO: return idCompte corresponding to userMail
-        return null;
+    public int getIdCompte(String userMail) {
+        int idCompte = 0;
+        try {
+            PreparedStatement statement = this.connection.prepareStatement(
+                    "SELECT IDCOMPTE FROM UTILISATEUR WHERE MAILUTIL =?"
+            );
+            statement.setString(1, userMail);
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+            idCompte = resultSet.getInt(1);
+            closeStatement(statement, resultSet);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return idCompte;
     }
 
     public void forgetRight(String email) {
@@ -220,11 +221,20 @@ public void mettreOffreGagnante(Offre offre) {
         //      |_ historique d'offre qui ne sont pas des achats de l'utilisateur [récupérer son idCompte]
         // 2) Recommandations générales
         //      |_ catégories pour lesquelles il y a le plus d'offres en moyenne par produit (avec ou sans achat), classées par ordre décroissant du nombre moyen d'offres par produit
-        
+
         // Recommandations personnalisées
         // TODO
         try {
-            PreparedStatement statement = this.connection.prepareStatement("SELECT p.nomProd FROM Offre as o, Produit as p WHERE o.idCompte = ? AND o.idProd = p.idProd AND NOT EXISTS (SELECT * FROM OffreGagnante as og WHERE o.dateOffre = og.dateOffre AND o.idProd = og.idProd)");
+            PreparedStatement statement = this.connection.prepareStatement(
+                    "SELECT p.nomProd " +
+                            "FROM Offre o, Produit p " +
+                            "WHERE o.idCompte = ? " +
+                            "AND o.idProd = p.idProd " +
+                            "AND NOT EXISTS (SELECT * " +
+                                            "FROM OffreGagnante og " +
+                                            "WHERE o.dateOffre = og.dateOffre " +
+                                            "AND o.idProd = og.idProd)"
+            );
             statement.setInt(1, idCompte);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -233,9 +243,13 @@ public void mettreOffreGagnante(Offre offre) {
         return null;
     }
 
-    public record ProductSummary(int id, String name) {}
-    /** Returns a list of product ids & product names, useful to display the list.
-     * The product id is useful to get more info about the product later */
+    public record ProductSummary(int id, String name) {
+    }
+
+    /**
+     * Returns a list of product ids & product names, useful to display the list.
+     * The product id is useful to get more info about the product later
+     */
     public List<ProductSummary> getProductList(String nameCategory) {
         List<ProductSummary> result = new ArrayList<>();
 
@@ -257,6 +271,22 @@ public void mettreOffreGagnante(Offre offre) {
     }
 
     public ArrayList<String> getProduct(int idProduct) {
+        //TODO : trier l'affichage des produits
+
+        /*
+         * SELECT p.idProd, p.nomProd, COALESCE(t.offercount, 0) AS offercount
+         * FROM Produit p
+         * LEFT JOIN
+         * (
+         *      SELECT idProd, count(*) as offercount
+         *      FROM OFFRE
+         *      GROUP BY idProd
+         * ) t
+         *   ON p.idProd = t.idProd
+         * WHERE p.nomcategorie = 'Chaussures de ville'
+         * order by p.nomprod
+         */
+
         ArrayList<String> result = new ArrayList<>();
 
         try {
@@ -266,7 +296,7 @@ public void mettreOffreGagnante(Offre offre) {
             statement.setInt(1, idProduct);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                for (int i = 1 ; i < 6 ; ++i) {
+                for (int i = 1; i < 6; ++i) {
                     result.add(resultSet.getString(i));
                 }
             }

@@ -1,4 +1,3 @@
-import java.sql.*;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,9 +28,9 @@ public class Offre {
 			case 5:
 				throw new ProductNotAvailable();
 			case 4:
-				db.mettreOffreGagnante(offre);
+				db.setOfferWin(offre);
 			default:
-				db.ajouterOffre(offre);
+				db.addOffer(offre);
 			}
 		}
 		throw new OfferException(); // Le prix proposé est inférieur au prix courant
