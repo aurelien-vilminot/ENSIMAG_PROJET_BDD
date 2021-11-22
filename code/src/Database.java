@@ -150,6 +150,11 @@ public void mettreOffreGagnante(Offre offre) {
         return returnState;
     }
 
+    public String getIdCompte(String userMail) {
+        // TODO: return idCompte corresponding to userMail
+        return null;
+    }
+
     public void forgetRight(String email) {
         System.out.println("Suppression en cours\n...");
         try {
@@ -202,8 +207,29 @@ public void mettreOffreGagnante(Offre offre) {
         return result;
     }
 
-    public ArrayList<String> getRecommendedCategories() {
-        //TODO
+    public ArrayList<String> getRecommendedCategories(int idCompte) {
+        // Tri par ordre décroissant du nombre d'offres et par ordre alphabétique
+
+        // Les recommandations de catégories se basent sur l’historique d’offre et d’achat des utilisateurs. En priorité, 
+        // les recommandations vont concerner les catégories pour lesquelles l’utilisateur a fait le plus d’offres sur des 
+        // produits sans réussir à les acheter (par ordre décroissant du nombre d’offres). Ensuite, les recommandations 
+        // concerneront  les catégories pour lesquelles il y a eu le plus d’offres en moyenne  par produit  (avec ou sans 
+        // achat) et ce quel que soit l’utilisateur (par ordre décroissant du nombre moyen d’offres par produit). 
+
+        // 1) Recommandation personnalisée
+        //      |_ historique d'offre qui ne sont pas des achats de l'utilisateur [récupérer son idCompte]
+        // 2) Recommandations générales
+        //      |_ catégories pour lesquelles il y a le plus d'offres en moyenne par produit (avec ou sans achat), classées par ordre décroissant du nombre moyen d'offres par produit
+        
+        // Recommandations personnalisées
+        // TODO
+        try {
+            PreparedStatement statement = this.connection.prepareStatement("SELECT p.nomProd FROM Offre as o, Produit as p WHERE o.idCompte = ? AND o.idProd = p.idProd AND NOT EXISTS (SELECT * FROM OffreGagnante as og WHERE o.dateOffre = og.dateOffre AND o.idProd = og.idProd)");
+            statement.setInt(1, idCompte);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
         return null;
     }
 
