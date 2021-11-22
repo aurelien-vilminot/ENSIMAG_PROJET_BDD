@@ -1,0 +1,8 @@
+[
+    "INSERT INTO COMPTE (idCompte) VALUES (default)",
+    "INSERT INTO Utilisateur (mailUtil, mdpUtil, nomUtil, prenomUtil, adrUtil, idCompte) VALUES ('mail', 'mdp', 'nom', 'prenom', 'adresse', id)",
+    "INSERT INTO Categorie (nomCategorie) VALUES ('nomcategorie')",
+    "INSERT INTO APOURMERE (filleCategorie, mereCategorie) VALUES ('fille', 'mere')",
+    "INSERT INTO Produit (nomProd, prixCProd, descProd, urlProd, nomCategorie) VALUES ('nomProd', 0.00, 'description', '/url', 'categorie')",
+    "INSERT INTO CARACPRODUIT (idProd, caracProd, valeurProd) VALUES (id, 'carac', 'valeur')"
+]
