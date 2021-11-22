@@ -108,10 +108,7 @@ public class Interface {
 
     public void displayCategories(String nameSubCategory) {
         while (true) {
-            if (!this.pathOfCategorie.contains(nameSubCategory)) {
-                // Add the id of current category to remember the path
-                this.pathOfCategorie.add(nameSubCategory);
-            }
+            backupPath(nameSubCategory);
 
             // Init the title menu
             ArrayList<String> arrayToDisplay = new ArrayList<>();
@@ -122,10 +119,9 @@ public class Interface {
             }
 
             ArrayList<String> subCategories = this.database.getCatalog(nameSubCategory);
-            List<String> subCategoriesProducts =
-                    this.database.getProductList(nameSubCategory)
-                            .stream().map(Database.ProductSummary::name) // get only the name
-                            .collect(Collectors.toList());
+            int nbSubCategories = subCategories.size();
+            // Get product list
+            List<Database.ProductSummary> productList = this.database.getProductList(nameSubCategory);
 
             if (subCategories.size() == 0) {
                 displayProductList(nameSubCategory);
@@ -133,7 +129,8 @@ public class Interface {
             }
 
             // Add products to the list
-            subCategories.addAll(subCategoriesProducts);
+            subCategories.addAll(productList
+                    .stream().map(Database.ProductSummary::name).collect(Collectors.toList())); // get only the name
             subCategories.add("Retour");
             arrayToDisplay.addAll(subCategories);
             menuShow(arrayToDisplay);
@@ -145,15 +142,27 @@ public class Interface {
                     // Back to the precedent category
                     backToPrecCategory();
                     return;
+                } else if (input > nbSubCategories) {
+                    // The user wants to display a product
+                    // Backup the name of the product categorie
+                    this.pathOfCategorie.add(nameSubCategory);
+                    displayProduct(productList.get(input - nbSubCategories - 1).id());
                 } else {
                     // The user input is indexed starting from 1:
                     // subtract 1 to get the correct category index
                     displayCategories(subCategories.get(input - 1));
                 }
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
                 // If the input is not correct, re-display the same categories
                 displayCategories(nameSubCategory);
             }
+        }
+    }
+
+    private void backupPath(String categoryName) {
+        if (!this.pathOfCategorie.contains(categoryName)) {
+            // Add the name of current category to remember the path
+            this.pathOfCategorie.add(categoryName);
         }
     }
 
@@ -169,6 +178,7 @@ public class Interface {
     }
 
     public void displayProductList(String nameCategory) {
+        backupPath(nameCategory);
         // Display products
         List<Database.ProductSummary> productList = this.database.getProductList(nameCategory);
         ArrayList<String> menuProductList = new ArrayList<>();
@@ -185,22 +195,26 @@ public class Interface {
             }
             // User input is indexed starting at 1
             int productId = productList.get(input - 1).id();
-            ArrayList<String> product = this.database.getProduct(productId);
+            // Backup the name of the product categorie
             this.pathOfCategorie.add(nameCategory);
-            displayProduct(product);
-        } catch (NumberFormatException e) {
+            displayProduct(productId);
+        } catch (NumberFormatException |IndexOutOfBoundsException e) {
             // If the input is not correct, re-display the same products
             displayProductList(nameCategory);
         }
     }
 
-    public void displayProduct(ArrayList<String> productDetails) {
-        // same format as in database
-        System.out.println("• Produit: "+ productDetails.get(0)+" •");
-        System.out.println("Prix: "+ productDetails.get(1));
-        System.out.println("Description: "+ productDetails.get(2));
-        System.out.println("URL: " + productDetails.get(3));
-        System.out.println("Catégorie: " + productDetails.get(4));
+    public void displayProduct(int productId) {
+        ArrayList<String> product = this.database.getProduct(productId);
+        HashMap<String, String> caracProd = this.database.getCaracProd(productId);
+        System.out.println("• Produit : "+ product.get(0)+" •");
+        System.out.println("Prix: "+ product.get(1));
+        System.out.println("Description: "+ product.get(2));
+        System.out.println("URL: " + product.get(3));
+        System.out.println("Catégorie: " + product.get(4));
+        System.out.println("Caractéristiques :");
+        caracProd.forEach((key, value) -> System.out.println("\t" + key + " : " + value));
+
         menuShow(this.bidItems);
         switch (getInput()) {
             case "1" -> {
@@ -208,6 +222,7 @@ public class Interface {
                 //TODO: appeler la fonction d'enchère
             }
             case "2" -> backToPrecCategory();
+            default -> displayProduct(productId);
         }
     }
 

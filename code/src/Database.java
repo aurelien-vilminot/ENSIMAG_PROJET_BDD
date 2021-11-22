@@ -13,6 +13,7 @@ public class Database {
         try {
             DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
             this.connection = DriverManager.getConnection(CONN_URL, USER, PASSWD);
+            this.connection.setTransactionIsolation(this.connection.TRANSACTION_SERIALIZABLE);
             this.connection.setAutoCommit(false);
         } catch (SQLException e) {
             System.err.println("Database connection failed");
@@ -27,77 +28,6 @@ public class Database {
             this.connection.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-        }
-    }
-
-    public void addOffer(Offre offre) {
-        try {
-
-            // Creation de la requete 1
-            //TODO: insérer l'id du compte
-            PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFRE VALUES (?, ?, ?)");
-            insertStmt.setInt(1, offre.getIdProduct());
-            insertStmt.setString(2, offre.getDate());
-            insertStmt.setFloat(3, offre.getPrice());
-
-            insertStmt.executeUpdate();
-            closeStatementAndCommit(insertStmt, null);
-
-            PreparedStatement updateStmt = this.connection.prepareStatement(
-                    "UPDATE PRODUIT SET PrixCProd=? WHERE IDPROD=?"
-            );
-            updateStmt.setFloat(1, offre.getPrice());
-            updateStmt.setInt(2, offre.getIdProduct());
-
-            updateStmt.executeUpdate();
-            closeStatementAndCommit(updateStmt, null);
-
-            System.out.println("ajout d'une ligne dans la table OFFRE et modification du prix du produit correspondant dans la table PRODUIT");
-        } catch (SQLException e) {
-            e.printStackTrace(System.err);
-        }
-    }
-
-    public ArrayList<String> offerInfos(int idProduit) {
-        try {
-            // Creation de la requete
-            PreparedStatement stmt = this.connection.prepareStatement("" +
-                    "SELECT p.PRIXCPROD, COUNT(dateOffre, o.IDPROD) as NbOffres " +
-                    "FROM PRODUIT p, OFFRE o " +
-                    "WHERE p.IDPROD = o.IDPROD " +
-                    "AND p.IDPROD = ? " +
-                    "GROUP BY  p.PrixCProd ");
-            stmt.setInt(1, idProduit);
-
-            // Execution de la requete
-            ResultSet rset = stmt.executeQuery();
-
-            // Affichage du resultat
-            ArrayList<String> result = new ArrayList<String>();
-            while (rset.next()) {
-                result.add(rset.getString(1));
-                result.add(rset.getString(2));
-            }
-
-            closeStatement(stmt, rset);
-            return result;
-        } catch (SQLException e) {
-            e.printStackTrace(System.err);
-            return null;
-        }
-    }
-
-    public void setOfferWin(Offre offre) {
-        try {
-            PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFREGAGNANTE VALUES (?, ?)");
-            insertStmt.setString(1, offre.getDate());
-            insertStmt.setInt(2, offre.getIdProduct());
-
-            insertStmt.executeUpdate();
-            closeStatementAndCommit(insertStmt, null);
-
-        } catch (SQLException e) {
-            e.printStackTrace(System.err);
         }
     }
 
@@ -120,6 +50,7 @@ public class Database {
     public boolean userConnection(String email, String password) {
         // Return true if user id/pwd is correct
         boolean returnState = false;
+
         try {
             PreparedStatement statement = this.connection.prepareStatement(
                     "SELECT COUNT(*) FROM UTILISATEUR WHERE MAILUTIL =? AND MDPUTIL =?"
@@ -141,6 +72,7 @@ public class Database {
 
     public int getIdCompte(String userMail) {
         int idCompte = 0;
+
         try {
             PreparedStatement statement = this.connection.prepareStatement(
                     "SELECT IDCOMPTE FROM UTILISATEUR WHERE MAILUTIL =?"
@@ -211,11 +143,11 @@ public class Database {
     public ArrayList<String> getRecommendedCategories(int idCompte) {
         // Tri par ordre décroissant du nombre d'offres et par ordre alphabétique
 
-        // Les recommandations de catégories se basent sur l’historique d’offre et d’achat des utilisateurs. En priorité, 
-        // les recommandations vont concerner les catégories pour lesquelles l’utilisateur a fait le plus d’offres sur des 
-        // produits sans réussir à les acheter (par ordre décroissant du nombre d’offres). Ensuite, les recommandations 
-        // concerneront  les catégories pour lesquelles il y a eu le plus d’offres en moyenne  par produit  (avec ou sans 
-        // achat) et ce quel que soit l’utilisateur (par ordre décroissant du nombre moyen d’offres par produit). 
+        // Les recommandations de catégories se basent sur l’historique d’offre et d’achat des utilisateurs. En priorité,
+        // les recommandations vont concerner les catégories pour lesquelles l’utilisateur a fait le plus d’offres sur des
+        // produits sans réussir à les acheter (par ordre décroissant du nombre d’offres). Ensuite, les recommandations
+        // concerneront  les catégories pour lesquelles il y a eu le plus d’offres en moyenne  par produit  (avec ou sans
+        // achat) et ce quel que soit l’utilisateur (par ordre décroissant du nombre moyen d’offres par produit).
 
         // 1) Recommandation personnalisée
         //      |_ historique d'offre qui ne sont pas des achats de l'utilisateur [récupérer son idCompte]
@@ -243,9 +175,7 @@ public class Database {
         return null;
     }
 
-    public record ProductSummary(int id, String name) {
-    }
-
+    public record ProductSummary(int id, String name) {}
     /**
      * Returns a list of product ids & product names, useful to display the list.
      * The product id is useful to get more info about the product later
@@ -261,7 +191,8 @@ public class Database {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 result.add(new ProductSummary(
-                        resultSet.getInt(1), resultSet.getString(2)));
+                        resultSet.getInt(1), resultSet.getString(2))
+                );
             }
             closeStatement(statement, resultSet);
         } catch (SQLException throwables) {
@@ -307,8 +238,92 @@ public class Database {
         return result;
     }
 
-    public void makeBid() {
-        //TODO
+    public HashMap<String, String> getCaracProd(int idProduct) {
+        HashMap<String, String> caracs = new HashMap<>();
+
+        try {
+            PreparedStatement statement = this.connection.prepareStatement(
+                    "SELECT CARACPROD, VALEURPROD FROM CARACPRODUIT WHERE IDPROD =?"
+            );
+            statement.setInt(1, idProduct);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                caracs.put(resultSet.getString(1), resultSet.getString(2));
+            }
+            closeStatement(statement, resultSet);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return caracs;
+    }
+
+    public void addOffer(Offre offre) {
+        try {
+            PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFRE VALUES (?, ?, ?, ?)");
+            insertStmt.setInt(1, offre.getIdProduct());
+            insertStmt.setString(2, offre.getDate());
+            insertStmt.setFloat(3, offre.getPrice());
+            insertStmt.setInt(4, offre.getIdCompte());
+            insertStmt.executeUpdate();
+
+            PreparedStatement updateStmt = this.connection.prepareStatement(
+                    "UPDATE PRODUIT SET PrixCProd=? WHERE IDPROD=?"
+            );
+            updateStmt.setFloat(1, offre.getPrice());
+            updateStmt.setInt(2, offre.getIdProduct());
+            updateStmt.executeUpdate();
+
+            // Commit and close statements
+            this.connection.commit();
+            insertStmt.close();
+            updateStmt.close();
+
+            System.out.println("ajout d'une ligne dans la table OFFRE et modification du prix du produit correspondant dans la table PRODUIT");
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
+    }
+
+    public ArrayList<String> offerInfos(int idProduit) {
+        ArrayList<String> result = new ArrayList<>();
+
+        try {
+            // Creation de la requete
+            PreparedStatement stmt = this.connection.prepareStatement(
+                    "SELECT p.PRIXCPROD, COUNT(dateOffre, o.IDPROD) as NbOffres " +
+                            "FROM PRODUIT p, OFFRE o " +
+                            "WHERE p.IDPROD = o.IDPROD " +
+                            "AND p.IDPROD = ? " +
+                            "GROUP BY  p.PrixCProd "
+            );
+            stmt.setInt(1, idProduit);
+
+            // Execution de la requete
+            ResultSet rset = stmt.executeQuery();
+
+            // Affichage du resultat
+            while (rset.next()) {
+                result.add(rset.getString(1));
+                result.add(rset.getString(2));
+            }
+
+            closeStatement(stmt, rset);
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
+        return result;
+    }
+
+    public void setOfferWin(Offre offre) {
+        try {
+            PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFREGAGNANTE VALUES (?, ?)");
+            insertStmt.setString(1, offre.getDate());
+            insertStmt.setInt(2, offre.getIdProduct());
+            insertStmt.executeUpdate();
+            closeStatementAndCommit(insertStmt, null);
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
     }
 
     public void dropTables() {
