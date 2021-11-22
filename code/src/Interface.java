@@ -6,6 +6,7 @@ public class Interface {
     private final ArrayList<String> menuItems = new ArrayList<>(Arrays.asList("• MENU PRINCIPAL •", "Parcours catalogue", "Droit à l'oubli"));
     private final ArrayList<String> catalogeMenuItems = new ArrayList<>(Arrays.asList("• MENU CATALOGUES •", "Catalogue produits", "Catégories recommandées", "Retour"));
     private final ArrayList<String> yesNoItems = new ArrayList<>(Arrays.asList("• SUPPRESSION DÉFINITIVE •", "Oui", "Non"));
+    private final ArrayList<String> bidItems = new ArrayList<>(Arrays.asList("Voulez-vous faire une offre sur ce produit ?", "Oui", "Non"));
 
     private String userId;
     private String userPwd;
@@ -68,7 +69,6 @@ public class Interface {
         switch (getInput()) {
             case "1" -> {
                 // Display catalogue menu
-                menuShow(this.catalogeMenuItems);
                 catalogueMenuUserInput();
             }
             case "2" -> forgetRights();
@@ -105,7 +105,6 @@ public class Interface {
     }
 
     public void displayCategories(String nameSubCategory) {
-        System.out.println("nameSubCategory" + nameSubCategory);
         while (true) {
             if (!this.pathOfCategorie.contains(nameSubCategory)) {
                 // Add the id of current category to remember the path
@@ -129,6 +128,7 @@ public class Interface {
                 displayProductList(nameSubCategory);
                 return;
             }
+
             // Add products to the list
             subCategories.addAll(subCategoriesProducts);
             subCategories.add("Retour");
@@ -169,6 +169,7 @@ public class Interface {
 
     public void displayProductList(String nameCategory) {
         // Display products
+        System.out.println(this.pathOfCategorie);
         List<Database.ProductSummary> productList = this.database.getProductList(nameCategory);
         ArrayList<String> menuProductList = new ArrayList<>();
         menuProductList.add("Veuillez sélectionner un produit :");
@@ -186,7 +187,6 @@ public class Interface {
             int productId = productList.get(input - 1).id();
             ArrayList<String> product = this.database.getProduct(productId);
             displayProduct(product);
-            displayProductList(nameCategory);
         } catch (NumberFormatException e) {
             // If the input is not correct, re-display the same products
             displayProductList(nameCategory);
@@ -195,11 +195,19 @@ public class Interface {
 
     public void displayProduct(ArrayList<String> productDetails) {
         // same format as in database
-        System.out.println("• Produit: "+productDetails.get(0)+" •");
-        System.out.println("Prix: "+productDetails.get(1));
-        System.out.println("Description: "+productDetails.get(2));
-        System.out.println("URL: "+productDetails.get(3));
-        System.out.println("Catégorie: "+productDetails.get(4));
+        System.out.println("• Produit: "+ productDetails.get(0)+" •");
+        System.out.println("Prix: "+ productDetails.get(1));
+        System.out.println("Description: "+ productDetails.get(2));
+        System.out.println("URL: " + productDetails.get(3));
+        System.out.println("Catégorie: " + productDetails.get(4));
+        menuShow(this.bidItems);
+        switch (getInput()) {
+            case "1" -> {
+                System.out.println("Faire une offre");
+                //TODO: appeler la fonction d'enchère
+            }
+            case "2" -> backToPrecCategory();
+        }
     }
 
     public void catalogueMenuUserInput() {
