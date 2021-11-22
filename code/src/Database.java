@@ -30,6 +30,88 @@ public class Database {
         }
     }
 
+    public void ajouterOffre(Offre offre) {
+		try {
+
+			// Creation de la requete 1
+			PreparedStatement insertStmt = this.connection.prepareStatement("insert into OFFRE values (?, ?, ?)");
+			insertStmt.setInt(1, offre.getIdProduct());
+			insertStmt.setString(2, offre.getDate());
+			insertStmt.setFloat(3, offre.getPrice());
+
+			ResultSet rset1 = insertStmt.executeQuery();
+
+			rset1.close();
+			insertStmt.close();
+
+			PreparedStatement updateStmt = this.connection.prepareStatement("update PRODUIT set PrixCProd=? where IdProduit=?");
+			updateStmt.setFloat(1, offre.getPrice());
+			updateStmt.setInt(2, offre.getIdProduct());
+
+			// Execution de la requete 2
+			ResultSet rset2 = updateStmt.executeQuery();
+
+			System.out.println("ajout d'une ligne dans la table OFFRE et modification du prix du produit correspondant dans la table PRODUIT");
+
+
+			// Fermeture
+			rset2.close();
+			updateStmt.close();
+			System.out.println("closing statements ok");
+		} catch (SQLException e) {
+		System.err.println("failed");
+		e.printStackTrace(System.err);
+		}
+	}
+
+    public  ArrayList<String> offerInfos(int idProduit){
+		try {
+
+			// Creation de la requete
+			PreparedStatement stmt = this.connection.prepareStatement("select p.PrixCProd, COUNT(o.dateOffre,idProduit) as NbOffres FROM products p " +
+																	  "JOIN offre o on p.idproduit=o.idproduit WHERE p.idproduit = ? " +
+																	  "GROUP BY  p.PrixCProd ");
+			stmt.setInt(1, idProduit);
+
+			// Execution de la requete
+			ResultSet rset = stmt.executeQuery();
+
+			// Affichage du resultat
+			ArrayList<String> result = new ArrayList<String>();
+			while(rset.next()) {
+				result.add(rset.getString(1));
+				result.add(rset.getString(2));
+			}
+			// Fermeture
+			rset.close();
+			stmt.close();
+			return result;
+		}
+		catch (SQLException e)
+		{
+			System.err.println("failed");
+			e.printStackTrace(System.err);
+			return null;
+		}
+	}
+
+public void mettreOffreGagnante(Offre offre) {
+	try {	
+        PreparedStatement insertStmt = this.connection.prepareStatement("insert into OFFREGAGNANTE values (?, ?, ?)");
+		insertStmt.setInt(1, offre.getIdProduct());
+		insertStmt.setString(2, offre.getDate());
+		insertStmt.setFloat(3, offre.getPrice()); 
+
+		ResultSet rset1 = insertStmt.executeQuery();
+		rset1.close();
+		insertStmt.close();
+
+	} catch (SQLException e) {
+        System.err.println("failed");
+		e.printStackTrace(System.err);
+    }
+}	
+
     private void closeStatement(PreparedStatement statement, ResultSet resultSet) {
         try {
             if (resultSet != null) {
