@@ -111,7 +111,7 @@ public class Database {
             try {
                 PreparedStatement statement = this.connection.prepareStatement(
                         "SELECT NOMCATEGORIE FROM CATEGORIE " +
-                                "WHERE NOMCATEGORIE NOT IN (SELECT FILLECATEGORIE FROM APOURMERE)"
+                            "WHERE NOMCATEGORIE NOT IN (SELECT FILLECATEGORIE FROM APOURMERE)"
                 );
                 ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
@@ -159,13 +159,13 @@ public class Database {
         try {
             PreparedStatement statement = this.connection.prepareStatement(
                     "SELECT p.nomProd " +
-                            "FROM Offre o, Produit p " +
-                            "WHERE o.idCompte = ? " +
-                            "AND o.idProd = p.idProd " +
-                            "AND NOT EXISTS (SELECT * " +
-                                            "FROM OffreGagnante og " +
-                                            "WHERE o.dateOffre = og.dateOffre " +
-                                            "AND o.idProd = og.idProd)"
+                        "FROM Offre o, Produit p " +
+                        "WHERE o.idCompte = ? " +
+                        "AND o.idProd = p.idProd " +
+                        "AND NOT EXISTS (SELECT * " +
+                                        "FROM OffreGagnante og " +
+                                        "WHERE o.dateOffre = og.dateOffre " +
+                                        "AND o.idProd = og.idProd)"
             );
             statement.setInt(1, idCompte);
         } catch (SQLException throwables) {
@@ -185,9 +185,20 @@ public class Database {
 
         try {
             PreparedStatement statement = this.connection.prepareStatement(
-                    "SELECT IDPROD, NOMPROD FROM PRODUIT WHERE NOMCATEGORIE=?"
+                    "SELECT p.IDPROD, p.NOMPROD, COUNT(o.IDPROD) as NBOFFRE " +
+                        "FROM PRODUIT p, OFFRE o " +
+                        "WHERE p.NOMCATEGORIE =? " +
+                        "AND o.IDPROD = p.IDPROD " +
+                        "GROUP BY p.IDPROD, p.NOMPROD " +
+                        "UNION " +
+                        "SELECT p.IDPROD, p.NOMPROD, NULL as NBOFFRE " +
+                        "FROM PRODUIT p, OFFRE o " +
+                        "WHERE p.NOMCATEGORIE =? " +
+                        "AND p.IDPROD != o.IDPROD " +
+                        "ORDER BY NBOFFRE DESC NULLS LAST, NOMPROD"
             );
             statement.setString(1, nameCategory);
+            statement.setString(2, nameCategory);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 result.add(new ProductSummary(
@@ -202,22 +213,6 @@ public class Database {
     }
 
     public ArrayList<String> getProduct(int idProduct) {
-        //TODO : trier l'affichage des produits
-
-        /*
-         * SELECT p.idProd, p.nomProd, COALESCE(t.offercount, 0) AS offercount
-         * FROM Produit p
-         * LEFT JOIN
-         * (
-         *      SELECT idProd, count(*) as offercount
-         *      FROM OFFRE
-         *      GROUP BY idProd
-         * ) t
-         *   ON p.idProd = t.idProd
-         * WHERE p.nomcategorie = 'Chaussures de ville'
-         * order by p.nomprod
-         */
-
         ArrayList<String> result = new ArrayList<>();
 
         try {
@@ -291,10 +286,10 @@ public class Database {
             // Creation de la requete
             PreparedStatement stmt = this.connection.prepareStatement(
                     "SELECT p.PRIXCPROD, COUNT(dateOffre, o.IDPROD) as NbOffres " +
-                            "FROM PRODUIT p, OFFRE o " +
-                            "WHERE p.IDPROD = o.IDPROD " +
-                            "AND p.IDPROD = ? " +
-                            "GROUP BY  p.PrixCProd "
+                        "FROM PRODUIT p, OFFRE o " +
+                        "WHERE p.IDPROD = o.IDPROD " +
+                        "AND p.IDPROD = ? " +
+                        "GROUP BY  p.PrixCProd "
             );
             stmt.setInt(1, idProduit);
 
