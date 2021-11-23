@@ -223,6 +223,30 @@ public class Interface {
         }
     }
 
+    public void displayRecommanded() {
+        ArrayList<String> recommendedCategories = this.database.getRecommendedCategories(idCompte);
+        recommendedCategories.add("Retour");
+        recommendedCategories.add(0, "• CATEGORIES RECOMMANDEES •");
+        menuShow(recommendedCategories);
+        int backId = recommendedCategories.size() - 1;
+        try {
+            int input = Integer.parseInt(getInput());
+            if (input == backId) {
+                // Return
+                catalogueMenuUserInput();
+                return;
+            } else {
+                // The user input is indexed starting from 1:
+                // subtract 1 to get the correct category index
+                // TODO: gérer pour que le retour revienne dans cette fonction
+                displayCategories(recommendedCategories.get(input-1));
+            }
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            // If the input is not correct, re-display the same categories
+            displayRecommanded();
+        }
+    }
+
     public void askForOffer(float currentPrice, int productId) {
         while (true) {
             System.out.println("Entrez un prix:");
@@ -260,9 +284,7 @@ public class Interface {
             }
             case "2" -> {
                 // Display catalogue with recommended categories
-                ArrayList<String> recommendedCategories = this.database.getRecommendedCategories(idCompte);
-                System.out.println("Votre choix :");
-                displayCategories(recommendedCategories.get(Integer.parseInt(getInput())));
+                displayRecommanded();
             }
             case "3" -> menuUserInput();
             case "quit" -> {
