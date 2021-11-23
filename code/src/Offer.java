@@ -1,16 +1,22 @@
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.sql.Date;
+
+import static java.sql.Date.valueOf;
+
 
 public class Offer {
 	private float newPrice;
 	private Date date;
 	private int idProduit;
 	private int idCompte;
+	private final int NB_MAX_OFFER = 5;
 
 	public Offer(float newPrice, int idProduct, int idCompte) {
 		this.newPrice = newPrice;
 		this.idProduit = idProduct;
-		this.date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss"));
+		this.date = java.sql.Date.valueOf(String.valueOf(LocalDateTime.now()));
 		this.idCompte = idCompte;
 	}
 
@@ -33,10 +39,10 @@ public class Offer {
 	}
 
 	public float getPrice() {
-		return this.prix;
+		return this.newPrice;
 	}
 
-	public String getDate() {
+	public Date getDate() {
 		return this.date;
 	}
 

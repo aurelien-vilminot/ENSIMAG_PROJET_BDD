@@ -204,9 +204,9 @@ public class Database {
                         "GROUP BY p.IDPROD, p.NOMPROD " +
                         "UNION " +
                         "SELECT p.IDPROD, p.NOMPROD, NULL as NBOFFRE " +
-                        "FROM PRODUIT p, OFFRE o " +
+                        "FROM PRODUIT p " +
                         "WHERE p.NOMCATEGORIE =? " +
-                        "AND p.IDPROD != o.IDPROD " +
+                        "AND p.IDPROD NOT IN (SELECT OFFRE.IDPROD FROM OFFRE) " +
                         "ORDER BY NBOFFRE DESC NULLS LAST, NOMPROD"
             );
             statement.setString(1, nameCategory);
@@ -294,27 +294,23 @@ public class Database {
         }
     }
 
-    public ArrayList<String> offerInfos(int idProduit) {
-        ArrayList<String> result = new ArrayList<>();
+    public int nbOffers(int idProduit) {
+        int result = 0;
 
         try {
             // Creation de la requete
             PreparedStatement stmt = this.connection.prepareStatement(
-                    "SELECT p.PRIXCPROD, COUNT(dateOffre, o.IDPROD) as NbOffres " +
+                    "SELECT COUNT(o.IDPROD) as NbOffres " +
                         "FROM PRODUIT p, OFFRE o " +
                         "WHERE p.IDPROD = o.IDPROD " +
-                        "AND p.IDPROD = ? " +
-                        "GROUP BY  p.PrixCProd "
+                        "AND p.IDPROD =? " +
+                        "GROUP BY p.PRIXCPROD"
             );
             stmt.setInt(1, idProduit);
-
-            // Execution de la requete
             ResultSet rset = stmt.executeQuery();
 
-            // Affichage du resultat
             while (rset.next()) {
-                result.add(rset.getString(1));
-                result.add(rset.getString(2));
+                result = rset.getInt(1);
             }
 
             closeStatement(stmt, rset);
