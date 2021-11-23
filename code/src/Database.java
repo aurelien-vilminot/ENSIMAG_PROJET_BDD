@@ -264,20 +264,23 @@ public class Database {
         return caracs;
     }
 
-    public void addOffer(Offre offre) {
+    public void addOffer(Offer offer) {
         try {
-            PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFRE VALUES (?, ?, ?, ?)");
-            insertStmt.setInt(1, offre.getIdProduct());
-            insertStmt.setString(2, offre.getDate());
-            insertStmt.setFloat(3, offre.getPrice());
-            insertStmt.setInt(4, offre.getIdCompte());
+
+            PreparedStatement insertStmt = this.connection.prepareStatement(
+                    "INSERT INTO OFFRE VALUES (?, ?, ?, ?)"
+            );
+            insertStmt.setInt(1, offer.getIdProduct());
+            insertStmt.setDate(2, offer.getDate());
+            insertStmt.setFloat(3, offer.getPrice());
+            insertStmt.setInt(4, offer.getIdCompte());
             insertStmt.executeUpdate();
 
             PreparedStatement updateStmt = this.connection.prepareStatement(
                     "UPDATE PRODUIT SET PrixCProd=? WHERE IDPROD=?"
             );
-            updateStmt.setFloat(1, offre.getPrice());
-            updateStmt.setInt(2, offre.getIdProduct());
+            updateStmt.setFloat(1, offer.getPrice());
+            updateStmt.setInt(2, offer.getIdProduct());
             updateStmt.executeUpdate();
 
             // Commit and close statements
@@ -321,11 +324,11 @@ public class Database {
         return result;
     }
 
-    public void setOfferWin(Offre offre) {
+    public void setOfferWin(Offer offer) {
         try {
             PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFREGAGNANTE VALUES (?, ?)");
-            insertStmt.setString(1, offre.getDate());
-            insertStmt.setInt(2, offre.getIdProduct());
+            insertStmt.setDate(1, offer.getDate());
+            insertStmt.setInt(2, offer.getIdProduct());
             insertStmt.executeUpdate();
             closeStatementAndCommit(insertStmt, null);
         } catch (SQLException e) {
