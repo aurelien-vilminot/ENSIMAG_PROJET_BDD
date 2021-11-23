@@ -38,8 +38,8 @@ idUtil -> mailUtil, mdpUtil, nomUtil, prenomUtil, adrUtil
 
 idCategorie -> nomCategorie
 
-> Les offres sont identifiées par l’identifiant de produit et la date et l’heure de l’offre, et on précisera le prix proposé et le compte utilisateur concerné
-Une offre est faite par un utilisateur pour un produit
+> Les offres sont identifiées par l’identifiant de produit et la date et l’heure de l’offer, et on précisera le prix proposé et le compte utilisateur concerné
+Une offer est faite par un utilisateur pour un produit
 
 idOffre -> dateOffre, heureOffre, prixOffre, idProd, idUtil
 
@@ -64,7 +64,7 @@ idProd -|->> caracProd, valeurProd
 
 idCategorie -|->> idCategorie 
 
-> Si un produit est acheté, alors il est associé a son offre gagnante
+> Si un produit est acheté, alors il est associé a son offer gagnante
 
 idProd -|-> idOffre
 
@@ -72,10 +72,10 @@ idProd -|-> idOffre
 
 ### __Contraintes contextuelles :__
 
-__Pour une offre donné :__
-> “Une nouvelle offre doit avoir un prix (prixOffre) strictement supérieur au prix courant du produit (prixCProd)”
+__Pour une offer donné :__
+> “Une nouvelle offer doit avoir un prix (prixOffre) strictement supérieur au prix courant du produit (prixCProd)”
 
-> “Si une offre est ajoutée, le prix courant (prixCProd) du produit devient celui de l’offre (prixOffre)”
+> “Si une offer est ajoutée, le prix courant (prixCProd) du produit devient celui de l’offer (prixOffre)”
 
 <br>
 
@@ -90,7 +90,7 @@ Utilisateur(idUtil, mailUtil, mdpUtil, nomUtil, prenomUtil, adrUtil)
 
 Categorie(idCategorie, nomCategorie)
 
-Offre(idOffre, dateOffre, heureOffre, prixOffre)
+Offer(idOffre, dateOffre, heureOffre, prixOffre)
 
 CaracProduit(caracProd)
 
@@ -106,11 +106,11 @@ __Possede:__ idProd (1..*) -|->> (0..*) caracProd, valeurProd [propriété propr
 
 __EstMereDe:__ idCategorie (0..1) -|->> (0..*) idCategorie 
 
-> une offre est associée à un produit
+> une offer est associée à un produit
 
 __EnchereDe:__ idOffre (0..*) -> (1..1) idProduit 
 
-> une offre est associée à un utilisateur
+> une offer est associée à un utilisateur
 
 __EncherePar:__ idOffre (0..*) -> (1..1) idUtil 
 
@@ -123,7 +123,7 @@ __CategorieDe:__ idCategorie (1..1) ->> (1..*) idProduit
 
 ### __Sous-type d'entité__
 
-OffreGagnante associée à l’entité “Offre”
+OffreGagnante associée à l’entité “Offer”
 - duplication pour accès en temps rapide
 
 <br>

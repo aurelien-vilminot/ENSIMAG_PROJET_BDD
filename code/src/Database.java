@@ -210,9 +210,9 @@ public class Database {
                         "GROUP BY p.IDPROD, p.NOMPROD " +
                         "UNION " +
                         "SELECT p.IDPROD, p.NOMPROD, NULL as NBOFFRE " +
-                        "FROM PRODUIT p, OFFRE o " +
+                        "FROM PRODUIT p " +
                         "WHERE p.NOMCATEGORIE =? " +
-                        "AND p.IDPROD != o.IDPROD " +
+                        "AND p.IDPROD NOT IN (SELECT OFFRE.IDPROD FROM OFFRE) " +
                         "ORDER BY NBOFFRE DESC NULLS LAST, NOMPROD"
             );
             statement.setString(1, nameCategory);
@@ -270,20 +270,23 @@ public class Database {
         return caracs;
     }
 
-    public void addOffer(Offre offre) {
+    public void addOffer(Offer offer) {
         try {
-            PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFRE VALUES (?, ?, ?, ?)");
-            insertStmt.setInt(1, offre.getIdProduct());
-            insertStmt.setString(2, offre.getDate());
-            insertStmt.setFloat(3, offre.getPrice());
-            insertStmt.setInt(4, offre.getIdCompte());
+
+            PreparedStatement insertStmt = this.connection.prepareStatement(
+                    "INSERT INTO OFFRE VALUES (?, ?, ?, ?)"
+            );
+            insertStmt.setInt(1, offer.getIdProduct());
+            insertStmt.setDate(2, offer.getDate());
+            insertStmt.setFloat(3, offer.getPrice());
+            insertStmt.setInt(4, offer.getIdCompte());
             insertStmt.executeUpdate();
 
             PreparedStatement updateStmt = this.connection.prepareStatement(
                     "UPDATE PRODUIT SET PrixCProd=? WHERE IDPROD=?"
             );
-            updateStmt.setFloat(1, offre.getPrice());
-            updateStmt.setInt(2, offre.getIdProduct());
+            updateStmt.setFloat(1, offer.getPrice());
+            updateStmt.setInt(2, offer.getIdProduct());
             updateStmt.executeUpdate();
 
             // Commit and close statements
@@ -297,27 +300,23 @@ public class Database {
         }
     }
 
-    public ArrayList<String> offerInfos(int idProduit) {
-        ArrayList<String> result = new ArrayList<>();
+    public int nbOffers(int idProduit) {
+        int result = 0;
 
         try {
             // Creation de la requete
             PreparedStatement stmt = this.connection.prepareStatement(
-                    "SELECT p.PRIXCPROD, COUNT(dateOffre, o.IDPROD) as NbOffres " +
+                    "SELECT COUNT(o.IDPROD) as NbOffres " +
                         "FROM PRODUIT p, OFFRE o " +
                         "WHERE p.IDPROD = o.IDPROD " +
-                        "AND p.IDPROD = ? " +
-                        "GROUP BY  p.PrixCProd "
+                        "AND p.IDPROD =? " +
+                        "GROUP BY p.PRIXCPROD"
             );
             stmt.setInt(1, idProduit);
-
-            // Execution de la requete
             ResultSet rset = stmt.executeQuery();
 
-            // Affichage du resultat
             while (rset.next()) {
-                result.add(rset.getString(1));
-                result.add(rset.getString(2));
+                result = rset.getInt(1);
             }
 
             closeStatement(stmt, rset);
@@ -327,11 +326,11 @@ public class Database {
         return result;
     }
 
-    public void setOfferWin(Offre offre) {
+    public void setOfferWin(Offer offer) {
         try {
             PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFREGAGNANTE VALUES (?, ?)");
-            insertStmt.setString(1, offre.getDate());
-            insertStmt.setInt(2, offre.getIdProduct());
+            insertStmt.setDate(1, offer.getDate());
+            insertStmt.setInt(2, offer.getIdProduct());
             insertStmt.executeUpdate();
             closeStatementAndCommit(insertStmt, null);
         } catch (SQLException e) {

@@ -217,13 +217,37 @@ public class Interface {
 
         menuShow(this.bidItems);
         switch (getInput()) {
-            case "1" -> {
-                System.out.println("Faire une offre");
-                //TODO: appeler la fonction d'enchère
-            }
+            case "1" -> askForOffer(Float.parseFloat(product.get(1)), productId);
             case "2" -> backToPrecCategory();
             default -> displayProduct(productId);
         }
+    }
+
+    public void askForOffer(float currentPrice, int productId) {
+        while (true) {
+            System.out.println("Entrez un prix:");
+            try {
+                float newPrice = Float.parseFloat(getInput());
+                if (newPrice < currentPrice) {
+                    System.out.println("Le prix proposé est inférieur au prix courant: " + currentPrice);
+                } else {
+                    Offer offer = new Offer(newPrice, productId, this.idCompte);
+                    boolean isOfferWin = offer.insertOffre(this.database);
+                    System.out.println("Bravo l'enchère a été effectuée !");
+                    if (isOfferWin) {
+                        System.out.println("Bravo vous êtes le gagnant de cette enchère !");
+                    }
+                    break;
+                }
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                // Ask again
+                askForOffer(currentPrice, productId);
+            } catch (OfferException | ProductNotAvailable e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        displayProduct(productId);
     }
 
     public void catalogueMenuUserInput() {
