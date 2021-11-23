@@ -272,14 +272,12 @@ public class Database {
 
     public void addOffer(Offer offer) {
         try {
-
             PreparedStatement insertStmt = this.connection.prepareStatement(
-                    "INSERT INTO OFFRE VALUES (?, ?, ?, ?)"
+                    "INSERT INTO OFFRE VALUES (?, CURRENT_DATE, ?, ?)"
             );
             insertStmt.setInt(1, offer.getIdProduct());
-            insertStmt.setDate(2, offer.getDate());
-            insertStmt.setFloat(3, offer.getPrice());
-            insertStmt.setInt(4, offer.getIdCompte());
+            insertStmt.setFloat(2, offer.getPrice());
+            insertStmt.setInt(3, offer.getIdCompte());
             insertStmt.executeUpdate();
 
             PreparedStatement updateStmt = this.connection.prepareStatement(
@@ -293,11 +291,48 @@ public class Database {
             this.connection.commit();
             insertStmt.close();
             updateStmt.close();
-
-            System.out.println("ajout d'une ligne dans la table OFFRE et modification du prix du produit correspondant dans la table PRODUIT");
         } catch (SQLException e) {
             e.printStackTrace(System.err);
         }
+    }
+
+    public void setOfferWin(Offer offer) {
+        try {
+            PreparedStatement insertStmt = this.connection.prepareStatement(
+                    "INSERT INTO OFFREGAGNANTE VALUES (CURRENT_DATE, ?)"
+            );
+            insertStmt.setInt(1, offer.getIdProduct());
+            insertStmt.executeUpdate();
+            addOffer(offer);
+            closeStatementAndCommit(insertStmt, null);
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
+    }
+
+    public boolean isProductAvailable(int productId) {
+        boolean result = true;
+
+        try {
+            // Creation de la requete
+            PreparedStatement stmt = this.connection.prepareStatement(
+                    "SELECT COUNT(*) " +
+                        "FROM OFFREGAGNANTE " +
+                        "WHERE IDPROD = ? "
+            );
+            stmt.setInt(1, productId);
+            ResultSet resultSet = stmt.executeQuery();
+
+            if (resultSet.next() && resultSet.getInt(1) == 1) {
+                // If the result of row count is 1, this means that the product is not available for sell
+                result = false;
+            }
+
+            closeStatement(stmt, resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace(System.err);
+        }
+        return result;
     }
 
     public int nbOffers(int idProduit) {
@@ -324,18 +359,6 @@ public class Database {
             e.printStackTrace(System.err);
         }
         return result;
-    }
-
-    public void setOfferWin(Offer offer) {
-        try {
-            PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFREGAGNANTE VALUES (?, ?)");
-            insertStmt.setDate(1, offer.getDate());
-            insertStmt.setInt(2, offer.getIdProduct());
-            insertStmt.executeUpdate();
-            closeStatementAndCommit(insertStmt, null);
-        } catch (SQLException e) {
-            e.printStackTrace(System.err);
-        }
     }
 
     public void dropTables() {
