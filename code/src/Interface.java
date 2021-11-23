@@ -241,7 +241,7 @@ public class Interface {
                 default -> displayProduct(productId);
             }
         } else {
-            menuShow(new ArrayList<>(Arrays.asList("Retour", "Oui")));
+            menuShow(new ArrayList<>(Arrays.asList("Retour :", "Oui")));
             if ("1".equals(getInput())) {
                 backToPrecCategory();
             } else {
@@ -254,7 +254,7 @@ public class Interface {
     public void displayRecommanded() {
         ArrayList<String> recommendedCategories = this.database.getRecommendedCategories(idCompte);
         recommendedCategories.add("Retour");
-        recommendedCategories.add(0, "• CATEGORIES RECOMMANDEES •");
+        recommendedCategories.add(0, "• CATÉGORIES RECOMMANDÉES •");
         menuShow(recommendedCategories);
         int backId = recommendedCategories.size() - 1;
         try {
@@ -291,11 +291,9 @@ public class Interface {
                     }
                     break;
                 }
-            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            } catch (NumberFormatException e) {
                 // Ask again
                 askForOffer(currentPrice, productId);
-            } catch (OfferException | ProductNotAvailable e) {
-                System.out.println(e.getMessage());
             }
         }
 
