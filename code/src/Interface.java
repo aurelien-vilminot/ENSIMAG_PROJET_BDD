@@ -145,7 +145,7 @@ public class Interface {
                 } else if (input > nbSubCategories) {
                     // The user wants to display a product
                     // Backup the name of the product categorie
-                    this.pathOfCategorie.add(nameSubCategory);
+                    backupPath(nameSubCategory);
                     displayProduct(productList.get(input - nbSubCategories - 1).id());
                 } else {
                     // The user input is indexed starting from 1:
@@ -160,6 +160,10 @@ public class Interface {
     }
 
     private void backupPath(String categoryName) {
+        if (categoryName == null || categoryName.equals("")) {
+            categoryName = "menu";
+        }
+
         if (!this.pathOfCategorie.contains(categoryName)) {
             // Add the name of current category to remember the path
             this.pathOfCategorie.add(categoryName);
@@ -170,6 +174,11 @@ public class Interface {
         // If the user is at the first categories, back to catalogue menu
         if (this.pathOfCategorie.size() == 1) {
             catalogueMenuUserInput();
+            return;
+        } else if (this.pathOfCategorie.size() == 2) {
+            this.pathOfCategorie.remove(this.pathOfCategorie.size() - 1);
+            displayCategories(null);
+            return;
         }
 
         // Else back to the previous category
@@ -215,12 +224,22 @@ public class Interface {
         System.out.println("Caractéristiques :");
         caracProd.forEach((key, value) -> System.out.println("\t" + key + " : " + value));
 
-        menuShow(this.bidItems);
-        switch (getInput()) {
-            case "1" -> askForOffer(Float.parseFloat(product.get(1)), productId);
-            case "2" -> backToPrecCategory();
-            default -> displayProduct(productId);
+        if (this.database.isProductAvailable(productId)) {
+            menuShow(this.bidItems);
+            switch (getInput()) {
+                case "1" -> askForOffer(Float.parseFloat(product.get(1)), productId);
+                case "2" -> backToPrecCategory();
+                default -> displayProduct(productId);
+            }
+        } else {
+            menuShow(new ArrayList<>(Arrays.asList("Retour", "Oui")));
+            if ("1".equals(getInput())) {
+                backToPrecCategory();
+            } else {
+                displayProduct(productId);
+            }
         }
+
     }
 
     public void askForOffer(float currentPrice, int productId) {
@@ -233,9 +252,9 @@ public class Interface {
                 } else {
                     Offer offer = new Offer(newPrice, productId, this.idCompte);
                     boolean isOfferWin = offer.insertOffre(this.database);
-                    System.out.println("Bravo l'enchère a été effectuée !");
+                    System.out.println("Bravo, l'enchère a été effectuée !");
                     if (isOfferWin) {
-                        System.out.println("Bravo vous êtes le gagnant de cette enchère !");
+                        System.out.println("Bravo, vous êtes le gagnant de cette enchère !");
                     }
                     break;
                 }
