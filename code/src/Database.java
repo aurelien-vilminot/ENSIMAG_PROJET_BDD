@@ -31,20 +31,12 @@ public class Database {
         }
     }
 
-    private void closeStatement(PreparedStatement statement, ResultSet resultSet) {
+    private void commit() {
         try {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            statement.close();
+            this.connection.commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-    }
-
-    private void closeStatementAndCommit(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
-        closeStatement(preparedStatement, resultSet);
-        this.connection.commit();
     }
 
     public boolean userConnection(String email, String password) {
@@ -63,7 +55,10 @@ public class Database {
                 // If the result of row count is 1, this means that the user's information are correct
                 returnState = true;
             }
-            closeStatement(statement, resultSet);
+
+            resultSet.close();
+            statement.close();
+            commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -81,7 +76,10 @@ public class Database {
             ResultSet resultSet = statement.executeQuery();
             resultSet.next();
             idCompte = resultSet.getInt(1);
-            closeStatement(statement, resultSet);
+
+            resultSet.close();
+            statement.close();
+            commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -94,7 +92,8 @@ public class Database {
             PreparedStatement statement = this.connection.prepareStatement("DELETE FROM UTILISATEUR WHERE MAILUTIL=?");
             statement.setString(1, email);
             statement.executeUpdate();
-            closeStatementAndCommit(statement, null);
+            statement.close();
+            commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -117,12 +116,14 @@ public class Database {
                 while (resultSet.next()) {
                     result.add(resultSet.getString(1));
                 }
-                closeStatement(statement, resultSet);
+                resultSet.close();
+                statement.close();
+                commit();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         } else {
-            // Renvoie un tableau de String s'il y a des catégories contenues dans la catégorie
+            // Renvoie un tableau de String s'il y a des catégories contenues dans la catégorie nameCategorie
             try {
                 PreparedStatement statement = this.connection.prepareStatement(
                         "SELECT FILLECATEGORIE FROM APOURMERE WHERE APOURMERE.MERECATEGORIE =?"
@@ -132,7 +133,10 @@ public class Database {
                 while (resultSet.next()) {
                     result.add(resultSet.getString(1));
                 }
-                closeStatement(statement, resultSet);
+
+                resultSet.close();
+                statement.close();
+                commit();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
@@ -153,32 +157,32 @@ public class Database {
         try {
             // Voir commentaire de "recommandations.sql"
             PreparedStatement statement = this.connection.prepareStatement(
-                "SELECT c.nomCategorie AS nomCategorie, count(o.dateOffre) AS nb, 0 AS union_order" +
-                "FROM Offre o, Produit p, Categorie c " +
-                "WHERE o.idProd = p.idProd  " +
-                "AND p.nomCategorie = c.nomCategorie " +
-                "AND o.idCompte = ?" +
-                "AND NOT EXISTS (SELECT *  " +
-                "                FROM OffreGagnante og  " +
-                "                WHERE o.dateOffre = og.dateOffre  " +
-                "                AND o.idProd = og.idProd)" +
-                "GROUP BY c.nomCategorie" +
-                "UNION" +
-                "SELECT c.nomCategorie AS nomCategorie, count(o.dateOffre)/count(DISTINCT o.idProd) AS nb, 1 AS union_order" +
-                "FROM Offre o, Categorie c, Produit p " +
-                "WHERE o.idProd = p.idProd  " +
-                "AND p.nomCategorie = c.nomCategorie" +
-                "GROUP BY c.nomCategorie" +
-                "HAVING c.nomCategorie NOT IN (SELECT c.nomCategorie" +
-                "FROM Categorie c, Offre o, Produit p" +
-                "WHERE o.idProd = p.idProd" +
-                "AND p.nomCategorie = c.nomCategorie" +
-                "AND o.idCompte = ?" +
-                "AND NOT EXISTS (SELECT *  " +
-                "                FROM OffreGagnante og  " +
-                "                WHERE o.dateOffre = og.dateOffre  " +
-                "                AND o.idProd = og.idProd))" +
-                "ORDER BY union_order, nb DESC, nomCategorie"
+                "SELECT c.nomCategorie AS nomCategorie, COUNT(o.dateOffre) AS nb, 0 AS union_order " +
+                    "FROM Offre o, Produit p, Categorie c " +
+                    "WHERE o.idProd = p.idProd  " +
+                    "AND p.nomCategorie = c.nomCategorie " +
+                    "AND o.idCompte = ?" +
+                    "AND NOT EXISTS (SELECT *  " +
+                    "                FROM OffreGagnante og  " +
+                    "                WHERE o.dateOffre = og.dateOffre  " +
+                    "                AND o.idProd = og.idProd)" +
+                    "GROUP BY c.nomCategorie " +
+                    "UNION " +
+                    "SELECT c.nomCategorie AS nomCategorie, COUNT(o.dateOffre)/COUNT(DISTINCT o.idProd) AS nb, 1 AS union_order " +
+                    "FROM Offre o, Categorie c, Produit p " +
+                    "WHERE o.idProd = p.idProd  " +
+                    "AND p.nomCategorie = c.nomCategorie " +
+                    "GROUP BY c.nomCategorie " +
+                    "HAVING c.nomCategorie NOT IN (SELECT c.nomCategorie " +
+                    "FROM Categorie c, Offre o, Produit p " +
+                    "WHERE o.idProd = p.idProd " +
+                    "AND p.nomCategorie = c.nomCategorie " +
+                    "AND o.idCompte = ? " +
+                    "AND NOT EXISTS (SELECT * " +
+                    "                FROM OffreGagnante og " +
+                    "                WHERE o.dateOffre = og.dateOffre " +
+                    "                AND o.idProd = og.idProd)) " +
+                    "ORDER BY union_order, nb DESC, nomCategorie"
             );
             statement.setInt(1, idCompte);
             statement.setInt(2, idCompte);
@@ -186,7 +190,10 @@ public class Database {
             while (resultSet.next()) {
                 result.add(resultSet.getString(1));
             }
-            closeStatement(statement, resultSet);
+
+            resultSet.close();
+            statement.close();
+            commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -223,7 +230,10 @@ public class Database {
                         resultSet.getInt(1), resultSet.getString(2))
                 );
             }
-            closeStatement(statement, resultSet);
+
+            resultSet.close();
+            statement.close();
+            commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -244,7 +254,10 @@ public class Database {
                     result.add(resultSet.getString(i));
                 }
             }
-            closeStatement(statement, resultSet);
+
+            resultSet.close();
+            statement.close();
+            commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -263,7 +276,10 @@ public class Database {
             while (resultSet.next()) {
                 caracs.put(resultSet.getString(1), resultSet.getString(2));
             }
-            closeStatement(statement, resultSet);
+
+            resultSet.close();
+            statement.close();
+            commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -272,12 +288,11 @@ public class Database {
 
     public void addOffer(Offer offer) {
         try {
-            PreparedStatement insertStmt = this.connection.prepareStatement(
-                    "INSERT INTO OFFRE VALUES (?, CURRENT_DATE, ?, ?)"
-            );
+            PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFRE VALUES (?, ?, ?, ?)");
             insertStmt.setInt(1, offer.getIdProduct());
-            insertStmt.setFloat(2, offer.getPrice());
-            insertStmt.setInt(3, offer.getIdCompte());
+            insertStmt.setDate(2, offer.getDate());
+            insertStmt.setFloat(3, offer.getPrice());
+            insertStmt.setInt(4, offer.getIdCompte());
             insertStmt.executeUpdate();
 
             PreparedStatement updateStmt = this.connection.prepareStatement(
@@ -288,9 +303,9 @@ public class Database {
             updateStmt.executeUpdate();
 
             // Commit and close statements
-            this.connection.commit();
             insertStmt.close();
             updateStmt.close();
+            commit();
         } catch (SQLException e) {
             e.printStackTrace(System.err);
         }
@@ -299,12 +314,15 @@ public class Database {
     public void setOfferWin(Offer offer) {
         try {
             PreparedStatement insertStmt = this.connection.prepareStatement(
-                    "INSERT INTO OFFREGAGNANTE VALUES (CURRENT_DATE, ?)"
+                    "INSERT INTO OFFREGAGNANTE VALUES (?, ?)"
             );
-            insertStmt.setInt(1, offer.getIdProduct());
+            insertStmt.setDate(1, offer.getDate());
+            insertStmt.setInt(2, offer.getIdProduct());
             insertStmt.executeUpdate();
+            insertStmt.close();
+
+            // Add the offer to offer table and commit at the end of the function
             addOffer(offer);
-            closeStatementAndCommit(insertStmt, null);
         } catch (SQLException e) {
             e.printStackTrace(System.err);
         }
@@ -314,7 +332,6 @@ public class Database {
         boolean result = true;
 
         try {
-            // Creation de la requete
             PreparedStatement stmt = this.connection.prepareStatement(
                     "SELECT COUNT(*) " +
                         "FROM OFFREGAGNANTE " +
@@ -328,7 +345,9 @@ public class Database {
                 result = false;
             }
 
-            closeStatement(stmt, resultSet);
+            resultSet.close();
+            stmt.close();
+            commit();
         } catch (SQLException e) {
             e.printStackTrace(System.err);
         }
@@ -339,13 +358,11 @@ public class Database {
         int result = 0;
 
         try {
-            // Creation de la requete
             PreparedStatement stmt = this.connection.prepareStatement(
                     "SELECT COUNT(o.IDPROD) as NbOffres " +
                         "FROM PRODUIT p, OFFRE o " +
                         "WHERE p.IDPROD = o.IDPROD " +
-                        "AND p.IDPROD =? " +
-                        "GROUP BY p.PRIXCPROD"
+                        "AND p.IDPROD =?"
             );
             stmt.setInt(1, idProduit);
             ResultSet rset = stmt.executeQuery();
@@ -354,7 +371,9 @@ public class Database {
                 result = rset.getInt(1);
             }
 
-            closeStatement(stmt, rset);
+            rset.close();
+            stmt.close();
+            commit();
         } catch (SQLException e) {
             e.printStackTrace(System.err);
         }
@@ -369,12 +388,14 @@ public class Database {
             try {
                 // Delete the specified table
                 PreparedStatement statement = this.connection.prepareStatement(query);
-                ResultSet resultSet = statement.executeQuery();
-                closeStatement(statement, resultSet);
+                statement.executeUpdate();
+                statement.close();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         }
+        // Commit at the end off drop tables
+        commit();
         System.out.println("Suppression terminée");
     }
 
@@ -388,11 +409,13 @@ public class Database {
                 // TRUNCATE is used to reset auto-increment
                 PreparedStatement statement = this.connection.prepareStatement(query);
                 statement.executeUpdate();
-                closeStatement(statement, null);
+                statement.close();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         }
+        // Commit at the end off reset tables
+        commit();
         System.out.println("Remise à zéro terminée");
     }
 
@@ -404,11 +427,13 @@ public class Database {
             try {
                 PreparedStatement statement = this.connection.prepareStatement(createQuery);
                 statement.executeUpdate();
-                closeStatement(statement, null);
+                statement.close();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         }
+        // Commit at the end off tables creation
+        commit();
         System.out.println("Création terminée");
     }
 
@@ -420,11 +445,14 @@ public class Database {
             try {
                 PreparedStatement statement = this.connection.prepareStatement(fillQuery);
                 statement.executeUpdate();
-                closeStatementAndCommit(statement, null);
+                statement.close();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         }
+
+        // Commit at the end off filling tables
+        commit();
         System.out.println("Remplissage terminé");
     }
 

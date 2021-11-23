@@ -1,41 +1,33 @@
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.sql.Date;
-import java.util.Calendar;
-
-import static java.sql.Date.valueOf;
-
 
 public class Offer {
 	private float newPrice;
 	private int idProduit;
 	private int idCompte;
+	private Date date;
 	private final static int NB_MAX_OFFER = 5;
 
 	public Offer(float newPrice, int idProduct, int idCompte) {
 		this.newPrice = newPrice;
 		this.idProduit = idProduct;
 		this.idCompte = idCompte;
+		java.util.Date currentDate = new java.util.Date();
+		this.date = new java.sql.Date(currentDate.getTime());
 	}
 
 	/** Insère une nouvelle offre dans la bdd
-	 * @throws OfferException Une offre ne peut pas être fait sur ce produit
-	 * @throws ProductNotAvailable Le produit est invalide
      *
 	 * Offre.insertOffre(db, prix, produit, mail)
 	 */
-	public boolean insertOffre(Database db) throws OfferException, ProductNotAvailable {
+	public boolean insertOffre(Database db) {
 		int nbOffers = db.nbOffers(this.idProduit);
-		if (nbOffers == NB_MAX_OFFER) {
-			throw new ProductNotAvailable();
-		} else if (nbOffers == NB_MAX_OFFER - 1) {
+		if (nbOffers == NB_MAX_OFFER - 1) {
 			db.setOfferWin(this);
 			return true;
+		} else {
+			db.addOffer(this);
+			return false;
 		}
-		db.addOffer(this);
-		return false;
 	}
 
 	public float getPrice() {
@@ -49,4 +41,6 @@ public class Offer {
 	public int getIdCompte() {
 		return this.idCompte;
 	}
+
+	public Date getDate() {return this.date;}
 }
