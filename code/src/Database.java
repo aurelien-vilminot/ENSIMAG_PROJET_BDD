@@ -142,49 +142,55 @@ public class Database {
 
     public ArrayList<String> getRecommendedCategories(int idCompte) {
         // Tri par ordre décroissant du nombre d'offres et par ordre alphabétique
-
-        // Les recommandations de catégories se basent sur l’historique d’offre et d’achat des utilisateurs. En priorité,
-        // les recommandations vont concerner les catégories pour lesquelles l’utilisateur a fait le plus d’offres sur des
-        // produits sans réussir à les acheter (par ordre décroissant du nombre d’offres). Ensuite, les recommandations
-        // concerneront  les catégories pour lesquelles il y a eu le plus d’offres en moyenne  par produit  (avec ou sans
-        // achat) et ce quel que soit l’utilisateur (par ordre décroissant du nombre moyen d’offres par produit).
-
         // 1) Recommandation personnalisée
-        //      |_ historique d'offre qui ne sont pas des achats de l'utilisateur [récupérer son idCompte]
+        //      |_ catégories pour lequelles l'utilisateur a fait des offres qui ne sont pas des achats, classées par orde décroissant du nombre d'offres par produit
         // 2) Recommandations générales
         //      |_ catégories pour lesquelles il y a le plus d'offres en moyenne par produit (avec ou sans achat), classées par ordre décroissant du nombre moyen d'offres par produit
 
-        // TODO
+        ArrayList<String> result = new ArrayList<>();
         
-        // Recommandations personnalisées
+        // Recommandations personnalisées et générales dans cet ordre
         try {
+            // Voir commentaire de "recommandations.sql"
             PreparedStatement statement = this.connection.prepareStatement(
-                    "SELECT p.nomProd " +
-                    "FROM Offre o, Produit p " +
-                    "WHERE o.idCompte = ? " +
-                    "AND o.idProd = p.idProd " +
-                    "AND NOT EXISTS (SELECT * " +
-                                    "FROM OffreGagnante og " +
-                                    "WHERE o.dateOffre = og.dateOffre " +
-                                    "AND o.idProd = og.idProd)"
+                "SELECT c.nomCategorie AS nomCategorie, count(o.dateOffre) AS nb, 0 AS union_order" +
+                "FROM Offre o, Produit p, Categorie c " +
+                "WHERE o.idProd = p.idProd  " +
+                "AND p.nomCategorie = c.nomCategorie " +
+                "AND o.idCompte = ?" +
+                "AND NOT EXISTS (SELECT *  " +
+                "                FROM OffreGagnante og  " +
+                "                WHERE o.dateOffre = og.dateOffre  " +
+                "                AND o.idProd = og.idProd)" +
+                "GROUP BY c.nomCategorie" +
+                "UNION" +
+                "SELECT c.nomCategorie AS nomCategorie, count(o.dateOffre)/count(DISTINCT o.idProd) AS nb, 1 AS union_order" +
+                "FROM Offre o, Categorie c, Produit p " +
+                "WHERE o.idProd = p.idProd  " +
+                "AND p.nomCategorie = c.nomCategorie" +
+                "GROUP BY c.nomCategorie" +
+                "HAVING c.nomCategorie NOT IN (SELECT c.nomCategorie" +
+                "FROM Categorie c, Offre o, Produit p" +
+                "WHERE o.idProd = p.idProd" +
+                "AND p.nomCategorie = c.nomCategorie" +
+                "AND o.idCompte = ?" +
+                "AND NOT EXISTS (SELECT *  " +
+                "                FROM OffreGagnante og  " +
+                "                WHERE o.dateOffre = og.dateOffre  " +
+                "                AND o.idProd = og.idProd))" +
+                "ORDER BY union_order, nb DESC, nomCategorie"
             );
             statement.setInt(1, idCompte);
+            statement.setInt(2, idCompte);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                result.add(resultSet.getString(1));
+            }
+            closeStatement(statement, resultSet);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-
-        // Recommandations générales
-        try {
-            PreparedStatement statement = this.connection.prepareStatement(
-                "SELECT c.nomCategorie, count(o.dateOffre)/count(DISTINCT o.idProd) as Moyenne" +
-                "FROM Offre o, Categorie c, Produit p" +
-                "WHERE o.idProd = p.idProd AND p.nomCategorie = c.nomCategorie" +
-                "GROUP BY c.nomCategorie"
-            );
-        } catch (SQLException throwables) {
-                throwables.printStackTrace();
-        }
-        return null;
+        return result;
     }
 
     public record ProductSummary(int id, String name) {}

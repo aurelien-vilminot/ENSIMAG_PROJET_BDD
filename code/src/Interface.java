@@ -238,7 +238,7 @@ public class Interface {
                 // Display catalogue with recommended categories
                 ArrayList<String> recommendedCategories = this.database.getRecommendedCategories(idCompte);
                 System.out.println("Votre choix :");
-                this.database.getProductList(recommendedCategories.get(Integer.parseInt(getInput())));
+                displayCategories(recommendedCategories.get(Integer.parseInt(getInput())));
             }
             case "3" -> menuUserInput();
             case "quit" -> {
