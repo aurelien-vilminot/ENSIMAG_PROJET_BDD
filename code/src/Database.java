@@ -153,31 +153,31 @@ public class Database {
         try {
             // Voir commentaire de "recommandations.sql"
             PreparedStatement statement = this.connection.prepareStatement(
-                "SELECT c.nomCategorie AS nomCategorie, count(o.dateOffre) AS nb, 0 AS union_order" +
+                "SELECT c.nomCategorie AS nomCategorie, count(o.dateOffre) AS nb, 0 AS union_order " +
                 "FROM Offre o, Produit p, Categorie c " +
-                "WHERE o.idProd = p.idProd  " +
+                "WHERE o.idProd = p.idProd " +
                 "AND p.nomCategorie = c.nomCategorie " +
-                "AND o.idCompte = ?" +
-                "AND NOT EXISTS (SELECT *  " +
-                "                FROM OffreGagnante og  " +
-                "                WHERE o.dateOffre = og.dateOffre  " +
-                "                AND o.idProd = og.idProd)" +
-                "GROUP BY c.nomCategorie" +
-                "UNION" +
-                "SELECT c.nomCategorie AS nomCategorie, count(o.dateOffre)/count(DISTINCT o.idProd) AS nb, 1 AS union_order" +
+                "AND o.idCompte = ? " +
+                "AND NOT EXISTS (SELECT * " +
+                "                FROM OffreGagnante og " +
+                "                WHERE o.dateOffre = og.dateOffre " +
+                "                AND o.idProd = og.idProd) " +
+                "GROUP BY c.nomCategorie " +
+                "UNION " +
+                "SELECT c.nomCategorie AS nomCategorie, count(o.dateOffre)/count(DISTINCT o.idProd) AS nb, 1 AS union_order " +
                 "FROM Offre o, Categorie c, Produit p " +
-                "WHERE o.idProd = p.idProd  " +
-                "AND p.nomCategorie = c.nomCategorie" +
-                "GROUP BY c.nomCategorie" +
-                "HAVING c.nomCategorie NOT IN (SELECT c.nomCategorie" +
-                "FROM Categorie c, Offre o, Produit p" +
-                "WHERE o.idProd = p.idProd" +
-                "AND p.nomCategorie = c.nomCategorie" +
-                "AND o.idCompte = ?" +
-                "AND NOT EXISTS (SELECT *  " +
-                "                FROM OffreGagnante og  " +
-                "                WHERE o.dateOffre = og.dateOffre  " +
-                "                AND o.idProd = og.idProd))" +
+                "WHERE o.idProd = p.idProd " +
+                "AND p.nomCategorie = c.nomCategorie " +
+                "GROUP BY c.nomCategorie " +
+                "HAVING c.nomCategorie NOT IN (SELECT c.nomCategorie " +
+                "FROM Categorie c, Offre o, Produit p " +
+                "WHERE o.idProd = p.idProd " +
+                "AND p.nomCategorie = c.nomCategorie " +
+                "AND o.idCompte = ? " +
+                "AND NOT EXISTS (SELECT * " +
+                "                FROM OffreGagnante og " +
+                "                WHERE o.dateOffre = og.dateOffre " +
+                "                AND o.idProd = og.idProd)) " +
                 "ORDER BY union_order, nb DESC, nomCategorie"
             );
             statement.setInt(1, idCompte);

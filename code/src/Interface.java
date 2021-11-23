@@ -163,22 +163,31 @@ public class Interface {
         if (categoryName == null || categoryName.equals("")) {
             categoryName = "menu";
         }
-
+        
         if (!this.pathOfCategorie.contains(categoryName)) {
             // Add the name of current category to remember the path
             this.pathOfCategorie.add(categoryName);
         }
+        System.out.println(this.pathOfCategorie);
     }
 
     public void backToPrecCategory() {
         // If the user is at the first categories, back to catalogue menu
-        if (this.pathOfCategorie.size() == 1) {
-            catalogueMenuUserInput();
-            return;
-        } else if (this.pathOfCategorie.size() == 2) {
-            this.pathOfCategorie.remove(this.pathOfCategorie.size() - 1);
-            displayCategories(null);
-            return;
+        if (this.pathOfCategorie.get(0).equals("menu")) {
+            if (this.pathOfCategorie.size() == 1) {
+                catalogueMenuUserInput();
+                return;
+            } else if (this.pathOfCategorie.size() == 2) {
+                this.pathOfCategorie.remove(this.pathOfCategorie.size() - 1);
+                displayCategories(null);
+                return;
+            }
+        } else if (this.pathOfCategorie.get(0).equals("recommandations")) {
+            if (this.pathOfCategorie.size() <= 2) {
+                this.pathOfCategorie.remove(this.pathOfCategorie.size() - 1);
+                displayRecommanded();
+                return;
+            }
         }
 
         // Else back to the previous category
@@ -257,8 +266,8 @@ public class Interface {
             } else {
                 // The user input is indexed starting from 1:
                 // subtract 1 to get the correct category index
-                // TODO: gérer pour que le retour revienne dans cette fonction
-                displayCategories(recommendedCategories.get(input-1));
+                backupPath("recommandations");
+                displayCategories(recommendedCategories.get(input));
             }
         } catch (NumberFormatException | IndexOutOfBoundsException e) {
             // If the input is not correct, re-display the same categories
@@ -294,6 +303,7 @@ public class Interface {
     }
 
     public void catalogueMenuUserInput() {
+        this.pathOfCategorie.clear();
         menuShow(this.catalogeMenuItems);
 
         switch (getInput()) {
