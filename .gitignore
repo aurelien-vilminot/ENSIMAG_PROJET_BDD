@@ -2,3 +2,4 @@ src/code.iml
 .idea/
 out/
 *.iml
+.vscode/*
