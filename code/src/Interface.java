@@ -217,10 +217,7 @@ public class Interface {
 
         menuShow(this.bidItems);
         switch (getInput()) {
-            case "1" -> {
-                System.out.println("Faire une offre");
-                //TODO: appeler la fonction d'enchère
-            }
+            case "1" -> askForOffer(Float.parseFloat(product.get(1)), productId);
             case "2" -> backToPrecCategory();
             default -> displayProduct(productId);
         }
