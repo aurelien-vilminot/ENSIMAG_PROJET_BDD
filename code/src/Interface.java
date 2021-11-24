@@ -3,11 +3,7 @@ import java.util.stream.Collectors;
 
 public class Interface {
     // String menu template : {"• Title •", "element1", ""element2"}
-<<<<<<< HEAD
-    private final ArrayList<String> menuItems = new ArrayList<>(Arrays.asList("• MENU PRINCIPAL •", "Parcours catalogue", "Droit à l'oubli", "Déconnexion"));
-=======
     private final ArrayList<String> menuItems = new ArrayList<>(Arrays.asList("• MENU PRINCIPAL •", "Parcours catalogue", "Droit à l'oubli", "Quitter"));
->>>>>>> 318d1eb6ab4b785061ac65ca6b457584bf1bf411
     private final ArrayList<String> catalogeMenuItems = new ArrayList<>(Arrays.asList("• MENU CATALOGUES •", "Catalogue produits", "Catégories recommandées", "Retour"));
     private final ArrayList<String> yesNoItems = new ArrayList<>(Arrays.asList("• SUPPRESSION DÉFINITIVE •", "Oui", "Non"));
     private final ArrayList<String> bidItems = new ArrayList<>(Arrays.asList("Voulez-vous faire une offre sur ce produit ?", "Oui", "Non"));
