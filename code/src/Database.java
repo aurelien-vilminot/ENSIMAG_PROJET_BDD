@@ -214,12 +214,14 @@ public class Database {
                         "FROM PRODUIT p, OFFRE o " +
                         "WHERE p.NOMCATEGORIE =? " +
                         "AND o.IDPROD = p.IDPROD " +
+                        "AND p.IDPROD NOT IN (SELECT IDPROD FROM OFFREGAGNANTE) " +
                         "GROUP BY p.IDPROD, p.NOMPROD " +
                         "UNION " +
                         "SELECT p.IDPROD, p.NOMPROD, NULL as NBOFFRE " +
                         "FROM PRODUIT p " +
                         "WHERE p.NOMCATEGORIE =? " +
                         "AND p.IDPROD NOT IN (SELECT OFFRE.IDPROD FROM OFFRE) " +
+                        "AND p.IDPROD NOT IN (SELECT IDPROD FROM OFFREGAGNANTE) " +
                         "ORDER BY NBOFFRE DESC NULLS LAST, NOMPROD"
             );
             statement.setString(1, nameCategory);
@@ -326,32 +328,6 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace(System.err);
         }
-    }
-
-    public boolean isProductAvailable(int productId) {
-        boolean result = true;
-
-        try {
-            PreparedStatement stmt = this.connection.prepareStatement(
-                    "SELECT COUNT(*) " +
-                        "FROM OFFREGAGNANTE " +
-                        "WHERE IDPROD = ? "
-            );
-            stmt.setInt(1, productId);
-            ResultSet resultSet = stmt.executeQuery();
-
-            if (resultSet.next() && resultSet.getInt(1) == 1) {
-                // If the result of row count is 1, this means that the product is not available for sell
-                result = false;
-            }
-
-            resultSet.close();
-            stmt.close();
-            commit();
-        } catch (SQLException e) {
-            e.printStackTrace(System.err);
-        }
-        return result;
     }
 
     public int nbOffers(int idProduit) {

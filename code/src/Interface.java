@@ -3,7 +3,7 @@ import java.util.stream.Collectors;
 
 public class Interface {
     // String menu template : {"• Title •", "element1", ""element2"}
-    private final ArrayList<String> menuItems = new ArrayList<>(Arrays.asList("• MENU PRINCIPAL •", "Parcours catalogue", "Droit à l'oubli"));
+    private final ArrayList<String> menuItems = new ArrayList<>(Arrays.asList("• MENU PRINCIPAL •", "Parcours catalogue", "Droit à l'oubli", "Quitter"));
     private final ArrayList<String> catalogeMenuItems = new ArrayList<>(Arrays.asList("• MENU CATALOGUES •", "Catalogue produits", "Catégories recommandées", "Retour"));
     private final ArrayList<String> yesNoItems = new ArrayList<>(Arrays.asList("• SUPPRESSION DÉFINITIVE •", "Oui", "Non"));
     private final ArrayList<String> bidItems = new ArrayList<>(Arrays.asList("Voulez-vous faire une offre sur ce produit ?", "Oui", "Non"));
@@ -74,10 +74,11 @@ public class Interface {
                 catalogueMenuUserInput();
             }
             case "2" -> forgetRights();
-            case "quit" -> {
+            case "3" -> {
                 System.out.println("Déconnection");
                 this.isRunning = false;
-                userConnection();
+                database.closeConnection();
+                System.exit(0);
             }
             default -> menuUserInput();
         }
@@ -97,11 +98,6 @@ public class Interface {
                 userConnection();
             }
             case "2" -> menuUserInput();
-            case "quit" -> {
-                System.out.println("Déconnection");
-                this.isRunning = false;
-                userConnection();
-            }
             default -> forgetRights();
         }
     }
@@ -144,9 +140,10 @@ public class Interface {
                     return;
                 } else if (input > nbSubCategories) {
                     // The user wants to display a product
-                    // Backup the name of the product categorie
-                    backupPath(nameSubCategory);
-                    displayProduct(productList.get(input - nbSubCategories - 1).id());
+                    // Backup the name of the product category
+                    int productId = productList.get(input - nbSubCategories - 1).id();
+                    backupPath(String.valueOf(productId));
+                    displayProduct(productId);
                 } else {
                     // The user input is indexed starting from 1:
                     // subtract 1 to get the correct category index
@@ -168,7 +165,6 @@ public class Interface {
             // Add the name of current category to remember the path
             this.pathOfCategorie.add(categoryName);
         }
-        System.out.println(this.pathOfCategorie);
     }
 
     public void backToPrecCategory() {
@@ -233,22 +229,12 @@ public class Interface {
         System.out.println("Caractéristiques :");
         caracProd.forEach((key, value) -> System.out.println("\t" + key + " : " + value));
 
-        if (this.database.isProductAvailable(productId)) {
-            menuShow(this.bidItems);
-            switch (getInput()) {
-                case "1" -> askForOffer(Float.parseFloat(product.get(1)), productId);
-                case "2" -> backToPrecCategory();
-                default -> displayProduct(productId);
-            }
-        } else {
-            menuShow(new ArrayList<>(Arrays.asList("Retour :", "Oui")));
-            if ("1".equals(getInput())) {
-                backToPrecCategory();
-            } else {
-                displayProduct(productId);
-            }
+        menuShow(this.bidItems);
+        switch (getInput()) {
+            case "1" -> askForOffer(Float.parseFloat(product.get(1)), productId);
+            case "2" -> backToPrecCategory();
+            default -> displayProduct(productId);
         }
-
     }
 
     public void displayRecommanded() {
@@ -288,6 +274,7 @@ public class Interface {
                     System.out.println("Bravo, l'enchère a été effectuée !");
                     if (isOfferWin) {
                         System.out.println("Bravo, vous êtes le gagnant de cette enchère !");
+                        backToPrecCategory();
                     }
                     break;
                 }
@@ -314,11 +301,6 @@ public class Interface {
                 displayRecommanded();
             }
             case "3" -> menuUserInput();
-            case "quit" -> {
-                System.out.println("Déconnection");
-                this.isRunning = false;
-                userConnection();
-            }
             default -> catalogueMenuUserInput();
         }
     }
