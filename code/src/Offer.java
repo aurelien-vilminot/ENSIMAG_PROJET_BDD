@@ -30,10 +30,6 @@ public class Offer {
 		this.date = new java.sql.Date(currentDate.getTime());
 	}
 
-	/** Insère une nouvelle offre dans la bdd
-     *
-	 * Offre.insertOffre(db, prix, produit, mail)
-	 */
 	public boolean insertOffre(Database db) {
 		int nbOffers = db.nbOffers(this.idProduit);
 		if (nbOffers == NB_MAX_OFFER - 1) {
@@ -62,7 +58,6 @@ public class Offer {
 	public static void addTestOffers(Database database) {
 		System.out.println("Remplissage des offres\n...");
 		Iterator<ArrayList<Float>> iterator = database.jsonParse.parseFloatArray("fakeOffers");
-		int oldIdProduct = -1;
 		int delay = 0;
 		while (iterator.hasNext()) {
 			ArrayList<Float> aList = iterator.next();

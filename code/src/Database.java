@@ -157,7 +157,7 @@ public class Database {
         try {
             // Voir commentaire de "recommandations.sql"
             PreparedStatement statement = this.connection.prepareStatement(
-                "SELECT p.nomCategorie AS nomCategorie, count(o.dateOffre) AS nb, 0 AS union_order " +
+            "SELECT p.nomCategorie AS nomCategorie, COUNT(o.dateOffre) AS nb, 0 AS union_order " +
                 "FROM Offre o, Produit p " +
                 "WHERE o.idProd = p.idProd  " +
                 "AND o.idCompte = ? " +
@@ -167,7 +167,7 @@ public class Database {
                 "                AND o.idProd = og.idProd) " +
                 "GROUP BY p.nomCategorie " +
                 "UNION " +
-                "SELECT p.nomCategorie AS nomCategorie, count(o.dateOffre)/count(DISTINCT o.idProd) AS nb, 1 AS union_order " +
+                "SELECT p.nomCategorie AS nomCategorie, COUNT(o.dateOffre)/COUNT(DISTINCT o.idProd) AS nb, 1 AS union_order " +
                 "FROM Offre o, Produit p " +
                 "WHERE o.idProd = p.idProd  " +
                 "GROUP BY p.nomCategorie " +
@@ -218,7 +218,6 @@ public class Database {
                         "FROM PRODUIT p " +
                         "WHERE p.NOMCATEGORIE =? " +
                         "AND p.IDPROD NOT IN (SELECT OFFRE.IDPROD FROM OFFRE) " +
-                        "AND p.IDPROD NOT IN (SELECT IDPROD FROM OFFREGAGNANTE) " +
                         "ORDER BY NBOFFRE DESC NULLS LAST, NOMPROD"
             );
             statement.setString(1, nameCategory);
@@ -332,10 +331,9 @@ public class Database {
 
         try {
             PreparedStatement stmt = this.connection.prepareStatement(
-                    "SELECT COUNT(o.IDPROD) as NbOffres " +
-                        "FROM PRODUIT p, OFFRE o " +
-                        "WHERE p.IDPROD = o.IDPROD " +
-                        "AND p.IDPROD =?"
+                    "SELECT COUNT(IDPROD) as NbOffres " +
+                        "FROM OFFRE " +
+                        "WHERE IDPROD =?"
             );
             stmt.setInt(1, idProduit);
             ResultSet rset = stmt.executeQuery();
