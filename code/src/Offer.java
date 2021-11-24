@@ -47,11 +47,16 @@ public class Offer {
 	public Date getDate() {return this.date;}
 
 	public static void addTestOffers(Database database) {
+		System.out.println("Remplissage des offres\n...");
 		Iterator<ArrayList<Float>> iterator = database.jsonParse.parseFloatArray("fakeOffers");
 		while (iterator.hasNext()) {
-            ArrayList<Float> aList = iterator.next();
-			System.out.println(aList);
-            // database.addOffer(new Offer(aList.get(0), Math.round(aList.get(1)), Math.round(aList.get(2))));
+			ArrayList<Float> aList = iterator.next();
+			Iterator<Float> it = aList.iterator();
+			float newPrice = ((Number) it.next()).floatValue();
+			int idProduct = Math.round(((Number) it.next()).floatValue());
+			int idCompte = Math.round(((Number) it.next()).floatValue());
+            (new Offer(newPrice, idProduct, idCompte)).insertOffre(database);
         }
+		System.out.println("Remplissage des offres terminé");
 	}
 }
