@@ -422,13 +422,12 @@ public class Database {
                 PreparedStatement statement = this.connection.prepareStatement(fillQuery);
                 statement.executeUpdate();
                 statement.close();
+                commit();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         }
 
-        // Commit at the end off filling tables
-        commit();
         System.out.println("Remplissage terminé");
     }
 
