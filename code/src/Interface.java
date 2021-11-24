@@ -3,7 +3,7 @@ import java.util.stream.Collectors;
 
 public class Interface {
     // String menu template : {"• Title •", "element1", ""element2"}
-    private final ArrayList<String> menuItems = new ArrayList<>(Arrays.asList("• MENU PRINCIPAL •", "Parcours catalogue", "Droit à l'oubli"));
+    private final ArrayList<String> menuItems = new ArrayList<>(Arrays.asList("• MENU PRINCIPAL •", "Parcours catalogue", "Droit à l'oubli", "Déconnexion"));
     private final ArrayList<String> catalogeMenuItems = new ArrayList<>(Arrays.asList("• MENU CATALOGUES •", "Catalogue produits", "Catégories recommandées", "Retour"));
     private final ArrayList<String> yesNoItems = new ArrayList<>(Arrays.asList("• SUPPRESSION DÉFINITIVE •", "Oui", "Non"));
     private final ArrayList<String> bidItems = new ArrayList<>(Arrays.asList("Voulez-vous faire une offre sur ce produit ?", "Oui", "Non"));
@@ -74,7 +74,7 @@ public class Interface {
                 catalogueMenuUserInput();
             }
             case "2" -> forgetRights();
-            case "quit" -> {
+            case "3" -> {
                 System.out.println("Déconnection");
                 this.isRunning = false;
                 userConnection();
@@ -168,7 +168,6 @@ public class Interface {
             // Add the name of current category to remember the path
             this.pathOfCategorie.add(categoryName);
         }
-        System.out.println(this.pathOfCategorie);
     }
 
     public void backToPrecCategory() {

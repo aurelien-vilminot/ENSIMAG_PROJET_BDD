@@ -1,3 +1,4 @@
+import java.util.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
@@ -23,5 +24,10 @@ public class JSONParse {
     public Iterator<String> parseArray(String nameArray) {
         JSONArray jsonArray = (JSONArray) this.jsonFile.get(nameArray);
         return (Iterator<String>) jsonArray.iterator();
+    }
+
+    public Iterator<ArrayList<Float>> parseFloatArray(String nameArray) {
+        JSONArray jsonArray = (JSONArray) this.jsonFile.get(nameArray);
+        return (Iterator<ArrayList<Float>>) jsonArray.iterator();
     }
 }
