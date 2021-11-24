@@ -1,4 +1,6 @@
 import java.sql.Date;
+import java.util.*;
+import java.math.*;
 
 public class Offer {
 	private float newPrice;
@@ -43,4 +45,13 @@ public class Offer {
 	}
 
 	public Date getDate() {return this.date;}
+
+	public static void addTestOffers(Database database) {
+		Iterator<ArrayList<Float>> iterator = database.jsonParse.parseFloatArray("fakeOffers");
+		while (iterator.hasNext()) {
+            ArrayList<Float> aList = iterator.next();
+			System.out.println(aList);
+            // database.addOffer(new Offer(aList.get(0), Math.round(aList.get(1)), Math.round(aList.get(2))));
+        }
+	}
 }

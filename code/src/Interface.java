@@ -37,7 +37,7 @@ public class Interface {
             }
             System.out.println("! Échec de la connexion !");
         }
-        clearScreen();
+        Interface.clearScreen();
     }
 
     public static String getInput() {
@@ -46,7 +46,8 @@ public class Interface {
     }
 
     public static void clearScreen() {
-        // TODO: clear terminal
+        System.out.print("\033[H\033[2J");  
+        System.out.flush();  
     }
 
     public void run() {

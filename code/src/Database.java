@@ -7,7 +7,7 @@ public class Database {
     private static final String PASSWD = "vilminoa";
 
     private Connection connection;
-    private JSONParse jsonParse;
+    public JSONParse jsonParse;
 
     public Database() {
         try {
@@ -157,26 +157,23 @@ public class Database {
         try {
             // Voir commentaire de "recommandations.sql"
             PreparedStatement statement = this.connection.prepareStatement(
-                "SELECT c.nomCategorie AS nomCategorie, count(o.dateOffre) AS nb, 0 AS union_order " +
-                "FROM Offre o, Produit p, Categorie c " +
-                "WHERE o.idProd = p.idProd " +
-                "AND p.nomCategorie = c.nomCategorie " +
+                "SELECT p.nomCategorie AS nomCategorie, count(o.dateOffre) AS nb, 0 AS union_order " +
+                "FROM Offre o, Produit p " +
+                "WHERE o.idProd = p.idProd  " +
                 "AND o.idCompte = ? " +
                 "AND NOT EXISTS (SELECT * " +
                 "                FROM OffreGagnante og " +
                 "                WHERE o.dateOffre = og.dateOffre " +
                 "                AND o.idProd = og.idProd) " +
-                "GROUP BY c.nomCategorie " +
+                "GROUP BY p.nomCategorie " +
                 "UNION " +
-                "SELECT c.nomCategorie AS nomCategorie, count(o.dateOffre)/count(DISTINCT o.idProd) AS nb, 1 AS union_order " +
-                "FROM Offre o, Categorie c, Produit p " +
+                "SELECT p.nomCategorie AS nomCategorie, count(o.dateOffre)/count(DISTINCT o.idProd) AS nb, 1 AS union_order " +
+                "FROM Offre o, Produit p " +
+                "WHERE o.idProd = p.idProd  " +
+                "GROUP BY p.nomCategorie " +
+                "HAVING p.nomCategorie NOT IN (SELECT p.nomCategorie " +
+                "FROM Offre o, Produit p " +
                 "WHERE o.idProd = p.idProd " +
-                "AND p.nomCategorie = c.nomCategorie " +
-                "GROUP BY c.nomCategorie " +
-                "HAVING c.nomCategorie NOT IN (SELECT c.nomCategorie " +
-                "FROM Categorie c, Offre o, Produit p " +
-                "WHERE o.idProd = p.idProd " +
-                "AND p.nomCategorie = c.nomCategorie " +
                 "AND o.idCompte = ? " +
                 "AND NOT EXISTS (SELECT * " +
                 "                FROM OffreGagnante og " +
@@ -429,6 +426,10 @@ public class Database {
         }
 
         System.out.println("Remplissage terminé");
+    }
+
+    public void fillOffers() {
+        Offer.addTestOffers(this);
     }
 
 }

@@ -34,6 +34,7 @@ public class DatabaseManagement {
                     database.dropTables();
                     database.createTables();
                     database.fillTables();
+                    database.fillOffers();
                     main(args);
                 }
                 case "5" -> System.exit(0);
