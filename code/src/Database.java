@@ -157,9 +157,9 @@ public class Database {
         try {
             // Voir commentaire de "recommandations.sql"
             PreparedStatement statement = this.connection.prepareStatement(
-            "SELECT p.nomCategorie AS nomCategorie, COUNT(o.dateOffre) AS nb, 0 AS union_order " +
+                "SELECT p.nomCategorie AS nomCategorie, count(o.dateOffre) AS nb, 0 AS union_order " +
                 "FROM Offre o, Produit p " +
-                "WHERE o.idProd = p.idProd  " +
+                "WHERE o.idProd = p.idProd " +
                 "AND o.idCompte = ? " +
                 "AND NOT EXISTS (SELECT * " +
                 "                FROM OffreGagnante og " +
@@ -167,11 +167,10 @@ public class Database {
                 "                AND o.idProd = og.idProd) " +
                 "GROUP BY p.nomCategorie " +
                 "UNION " +
-                "SELECT p.nomCategorie AS nomCategorie, COUNT(o.dateOffre)/COUNT(DISTINCT o.idProd) AS nb, 1 AS union_order " +
-                "FROM Offre o, Produit p " +
-                "WHERE o.idProd = p.idProd  " +
-                "GROUP BY p.nomCategorie " +
-                "HAVING p.nomCategorie NOT IN (SELECT p.nomCategorie " +
+                "SELECT p.nomCategorie AS nomCategorie, count(o.dateOffre)/count(DISTINCT o.idProd) AS nb, 1 AS union_order " +
+                "FROM Offre o, Produit p  " +
+                "WHERE o.idProd = p.idProd " +
+                "AND p.nomCategorie NOT IN (SELECT p.nomCategorie " +
                 "FROM Offre o, Produit p " +
                 "WHERE o.idProd = p.idProd " +
                 "AND o.idCompte = ? " +
@@ -179,6 +178,7 @@ public class Database {
                 "                FROM OffreGagnante og " +
                 "                WHERE o.dateOffre = og.dateOffre " +
                 "                AND o.idProd = og.idProd)) " +
+                "GROUP BY p.nomCategorie " +
                 "ORDER BY union_order, nb DESC, nomCategorie"
             );
             statement.setInt(1, idCompte);

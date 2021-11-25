@@ -36,9 +36,8 @@ UNION
 SELECT p.nomCategorie AS nomCategorie, count(o.dateOffre)/count(DISTINCT o.idProd) AS nb, 1 AS union_order
 FROM Offre o, Produit p 
 WHERE o.idProd = p.idProd  
-GROUP BY p.nomCategorie
 -- Remove category if user has offer in this one which is not a winning offer
-HAVING p.nomCategorie NOT IN (SELECT p.nomCategorie
+AND p.nomCategorie NOT IN (SELECT p.nomCategorie
 FROM Offre o, Produit p
 WHERE o.idProd = p.idProd
 AND o.idCompte = 3
@@ -47,4 +46,5 @@ AND NOT EXISTS (SELECT *
                 FROM OffreGagnante og  
                 WHERE o.dateOffre = og.dateOffre  
                 AND o.idProd = og.idProd))
+GROUP BY p.nomCategorie
 ORDER BY union_order, nb DESC, nomCategorie
