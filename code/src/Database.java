@@ -214,11 +214,11 @@ public class Database {
                         "AND p.IDPROD NOT IN (SELECT IDPROD FROM OFFREGAGNANTE) " +
                         "GROUP BY p.IDPROD, p.NOMPROD " +
                         "UNION " +
-                        "SELECT p.IDPROD, p.NOMPROD, NULL as NBOFFRE " +
+                        "SELECT p.IDPROD, p.NOMPROD, 0 as NBOFFRE " +
                         "FROM PRODUIT p " +
                         "WHERE p.NOMCATEGORIE =? " +
                         "AND p.IDPROD NOT IN (SELECT OFFRE.IDPROD FROM OFFRE) " +
-                        "ORDER BY NBOFFRE DESC NULLS LAST, NOMPROD"
+                        "ORDER BY NBOFFRE DESC, NOMPROD"
             );
             statement.setString(1, nameCategory);
             statement.setString(2, nameCategory);
