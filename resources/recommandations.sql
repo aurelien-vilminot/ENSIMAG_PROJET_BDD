@@ -4,7 +4,7 @@ FROM Offre o, Categorie c, Produit p
 WHERE o.idProd = p.idProd  
 AND p.nomCategorie = c.nomCategorie 
 GROUP BY c.nomCategorie 
-ORDER BY Moyenne DESC, c.nomCategorie ASC
+ORDER BY Moyenne DESC, c.nomCategorie ASC;
 
 -- Recommandation personnalisées
 SELECT c.nomCategorie, count(o.dateOffre) AS NbOffre  
@@ -17,7 +17,7 @@ AND NOT EXISTS (SELECT *
                 WHERE o.dateOffre = og.dateOffre  
                 AND o.idProd = og.idProd) 
 GROUP BY c.nomCategorie 
-ORDER BY NbOffre DESC, c.nomCategorie ASC
+ORDER BY NbOffre DESC, c.nomCategorie ASC;
 
 -- La requête qui fait les deux à la fois (affichant les catégories personnalisées puis générales, pas les autres)
 

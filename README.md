@@ -1,7 +1,6 @@
 Documentation Projet BD Groupe 5
 ============================
 
-
 # Exécution
 
 - Lors du développement du projet, la version 17.0.1 de la JDK a été utilisée. Ceci est la dernière version présente 
