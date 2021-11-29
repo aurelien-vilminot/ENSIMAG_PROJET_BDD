@@ -76,6 +76,7 @@ public class Interface {
             }
             case "2" -> forgetRights();
             case "3" -> {
+                Interface.clearScreen();
                 System.out.println("Déconnection");
                 this.isRunning = false;
                 database.closeConnection();
@@ -94,12 +95,17 @@ public class Interface {
             case "1" -> {
                 // Delete user information
                 this.database.forgetRight(this.userMail);
+                Interface.clearScreen();
                 System.out.println("Déconnection");
                 this.isRunning = false;
                 userConnection();
             }
             case "2" -> menuUserInput();
-            default -> forgetRights();
+            default -> {
+                Interface.clearScreen();
+                forgetRights();
+
+            }
         }
     }
 
@@ -137,6 +143,7 @@ public class Interface {
                 int input = Integer.parseInt(getInput());
                 if (input == backId) {
                     // Back to the precedent category
+                    Interface.clearScreen();
                     backToPrecCategory();
                     return;
                 } else if (input > nbSubCategories) {
@@ -205,6 +212,7 @@ public class Interface {
         try {
             int input = Integer.parseInt(getInput());
             if (input == menuProductList.size()-1) {
+                Interface.clearScreen();
                 backToPrecCategory();
                 return;
             }
@@ -233,7 +241,10 @@ public class Interface {
         menuShow(this.bidItems);
         switch (getInput()) {
             case "1" -> askForOffer(Float.parseFloat(product.get(1)), productId);
-            case "2" -> backToPrecCategory();
+            case "2" -> {
+                Interface.clearScreen();
+                backToPrecCategory();
+            }
             default -> displayProduct(productId);
         }
     }
@@ -301,7 +312,10 @@ public class Interface {
                 // Display catalogue with recommended categories
                 displayRecommanded();
             }
-            case "3" -> menuUserInput();
+            case "3" -> {
+                Interface.clearScreen();
+                menuUserInput();
+            }
             default -> catalogueMenuUserInput();
         }
     }
