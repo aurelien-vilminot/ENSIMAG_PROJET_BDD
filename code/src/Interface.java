@@ -278,7 +278,7 @@ public class Interface {
             System.out.println("Entrez un prix:");
             try {
                 float newPrice = Float.parseFloat(getInput());
-                if (newPrice < currentPrice) {
+                if (newPrice <= currentPrice) {
                     System.out.println("Le prix proposé est inférieur au prix courant: " + currentPrice);
                 } else {
                     Offer offer = new Offer(newPrice, productId, this.idCompte);
