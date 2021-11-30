@@ -177,4 +177,7 @@ INSERT INTO CARACPRODUIT (idProd, caracProd, valeurProd) VALUES (29, 'couleur', 
 INSERT INTO CARACPRODUIT (idProd, caracProd, valeurProd) VALUES (29, 'marque', 'L0L');
 INSERT INTO CARACPRODUIT (idProd, caracProd, valeurProd) VALUES (29, 'compatibilité', 'Conçu spécifiquement pour Xioaminx 10 ou 10 Pro');
 
+-- Commit
+COMMIT;
+
 -- ! Impossible de faire des offres par une simple insertion. Exécuter "DatabaseManagement" puis "Insérer un jeu de test"
