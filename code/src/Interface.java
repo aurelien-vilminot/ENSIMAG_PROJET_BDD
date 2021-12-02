@@ -292,11 +292,14 @@ public class Interface {
                         break;
                     } catch (IllegalAccessError e) {
                         System.out.println("Vous ne pouvez pas faire un enchère, le produit n'existe plus !");
+                        backToPrecCategory();
+                        return;
                     }
                 }
             } catch (NumberFormatException e) {
                 // Ask again
                 askForOffer(currentPrice, productId);
+                return;
             }
         }
 
