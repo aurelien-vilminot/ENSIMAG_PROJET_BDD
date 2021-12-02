@@ -34,7 +34,6 @@ public class Offer {
 		int nbOffers = db.nbOffers(this.idProduit);
 		if (nbOffers == NB_MAX_OFFER - 1) {
 			db.setOfferWin(this);
-			db.addOffer(this);
 			return true;
 		} else if (nbOffers >= NB_MAX_OFFER) {
 			throw new IllegalAccessError();
