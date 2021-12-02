@@ -282,13 +282,17 @@ public class Interface {
                     System.out.println("Le prix proposé est inférieur au prix courant: " + currentPrice);
                 } else {
                     Offer offer = new Offer(newPrice, productId, this.idCompte);
-                    boolean isOfferWin = offer.insertOffre(this.database);
-                    System.out.println("Bravo, l'enchère a été effectuée !");
-                    if (isOfferWin) {
-                        System.out.println("Bravo, vous êtes le gagnant de cette enchère !");
-                        backToPrecCategory();
+                    try {
+                        boolean isOfferWin = offer.insertOffre(this.database);
+                        System.out.println("Bravo, l'enchère a été effectuée !");
+                        if (isOfferWin) {
+                            System.out.println("Bravo, vous êtes le gagnant de cette enchère !");
+                            backToPrecCategory();
+                        }
+                        break;
+                    } catch (IllegalAccessError e) {
+                        System.out.println("Vous ne pouvez pas faire un enchère, le produit n'existe plus !");
                     }
-                    break;
                 }
             } catch (NumberFormatException e) {
                 // Ask again

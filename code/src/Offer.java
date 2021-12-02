@@ -30,11 +30,13 @@ public class Offer {
 		this.date = new java.sql.Date(currentDate.getTime());
 	}
 
-	public boolean insertOffre(Database db) {
+	public boolean insertOffre(Database db) throws IllegalAccessError {
 		int nbOffers = db.nbOffers(this.idProduit);
 		if (nbOffers == NB_MAX_OFFER - 1) {
 			db.setOfferWin(this);
 			return true;
+		} else if (nbOffers >= NB_MAX_OFFER) {
+			throw new IllegalAccessError();
 		} else {
 			db.addOffer(this);
 			return false;
