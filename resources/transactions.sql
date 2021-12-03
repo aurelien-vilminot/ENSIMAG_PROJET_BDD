@@ -6,17 +6,20 @@ WHERE MAILUTIL = 'root' AND MDPUTIL = 'root';
 
 COMMIT;
 
+
 -- Récupération de l'identifiant du compte
 SELECT IDCOMPTE FROM UTILISATEUR
 WHERE MAILUTIL = 'root';
 
 COMMIT;
 
+
 -- Récupération des catégories mères du catalogue
 SELECT NOMCATEGORIE FROM CATEGORIE
 WHERE NOMCATEGORIE NOT IN (SELECT FILLECATEGORIE FROM APOURMERE);
 
 COMMIT;
+
 
 -- Récupération des catégories recommandées (les catégories personnalisées puis générales, et pas d'autres)
 -- Première sélection sur les recommandations personnalisées
@@ -47,6 +50,7 @@ ORDER BY union_order, nb DESC, nomCategorie;
 
 COMMIT;
 
+
 -- Récupération des catégories filles de la catégorie 'Smartphones' ainsi que de ses produits
 SELECT FILLECATEGORIE FROM APOURMERE
 WHERE APOURMERE.MERECATEGORIE = 'Smartphones';
@@ -61,10 +65,11 @@ UNION
 SELECT p.IDPROD, p.NOMPROD, 0 as NBOFFRE
 FROM PRODUIT p
 WHERE p.NOMCATEGORIE = 'Smartphones'
-  AND p.IDPROD NOT IN (SELECT OFFRE.IDPROD FROM OFFRE)
+AND p.IDPROD NOT IN (SELECT OFFRE.IDPROD FROM OFFRE)
 ORDER BY NBOFFRE DESC, NOMPROD;
 
 COMMIT;
+
 
 -- Visualiser la fiche complète d'un produit
 SELECT NOMPROD, PRIXCPROD, DESCPROD, URLPROD, NOMCATEGORIE
@@ -74,23 +79,22 @@ SELECT CARACPROD, VALEURPROD FROM CARACPRODUIT WHERE IDPROD = 1;
 
 COMMIT;
 
--- Faire une offre sur un produit et mettre à jour son prix courant (les contraintes sont vérifiées dans le code)
-INSERT INTO OFFRE VALUES (1, CURRENT_DATE, 800, 1);
-UPDATE PRODUIT SET PrixCProd = 800 WHERE IDPROD = 1;
 
-COMMIT;
-
--- Connaître le nombre d'offres faites sur un produit
-SELECT COUNT(IDPROD) as NbOffres FROM OFFRE WHERE IDPROD = 1;
-
-COMMIT;
-
--- Insérer une offre gagnante (les contraintes sont vérifiées dans le code)
+-- Insérer une offre (les contraintes sont vérifiées dans le code)
 -- Dans l'application Gange, CURRENT_DATE est sauvegardé pour avoir la même valeur lors des deux insertions
-INSERT INTO OFFREGAGNANTE VALUES (CURRENT_DATE, 1);
 INSERT INTO OFFRE VALUES (1, CURRENT_DATE, 900, 1);
 UPDATE PRODUIT SET PrixCProd = 900 WHERE IDPROD = 1;
+-- Connaître le nombre d'offres faites sur un produit
+SELECT COUNT(IDPROD) as NbOffres FROM OFFRE WHERE IDPROD = 1;
+-- Si le nombre d'offres faites est égal au nombre d'offres maximum autorisées, l'offre devient gagnante
+-- Un COMMIT est fait afin de réaliser l'insertion dans la table OFFRE, OFFREGAGNANTE étant dépendante de celle-ci
 COMMIT;
+INSERT INTO OFFREGAGNANTE VALUES (CURRENT_DATE, 1);
+-- Si le nombre d'offres faites est supérieur au nombre d'offres maximum autorisées, ROLLBACK
+ROLLBACK;
+-- Sinon, COMMIT
+COMMIT;
+
 
 -- Appliquer le droit à l'oubli sur l'utilisateur root
 DELETE FROM UTILISATEUR WHERE MAILUTIL= 'root';
