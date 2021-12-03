@@ -344,7 +344,7 @@ public class Database {
 
             rset.close();
             stmt.close();
-            commit();
+            // Do not commit yet, since we need to add offer
         } catch (SQLException e) {
             e.printStackTrace(System.err);
         }
