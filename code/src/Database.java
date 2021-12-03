@@ -340,58 +340,11 @@ public class Database {
         }
     }
 
-    public void setOfferWin(Offer offer) {
-        try {
-            // Add the offer to offer table
-            addOffer(offer);
-
-            // Add to the win offer table
-            PreparedStatement insertStmt = this.connection.prepareStatement(
-                    "INSERT INTO OFFREGAGNANTE VALUES (?, ?)"
-            );
-            insertStmt.setDate(1, offer.getDate());
-            insertStmt.setInt(2, offer.getIdProduct());
-            insertStmt.executeUpdate();
-            insertStmt.close();
-
-            commit();
-        } catch (SQLException e) {
-            e.printStackTrace(System.err);
-        }
-    }
-
-    public int nbOffers(int idProduit) {
-        int result = 0;
-
-        try {
-            PreparedStatement stmt = this.connection.prepareStatement(
-                    "SELECT COUNT(IDPROD) as NbOffres " +
-                        "FROM OFFRE " +
-                        "WHERE IDPROD =?"
-            );
-            stmt.setInt(1, idProduit);
-            ResultSet rset = stmt.executeQuery();
-
-            while (rset.next()) {
-                result = rset.getInt(1);
-            }
-
-            rset.close();
-            stmt.close();
-            commit();
-        } catch (SQLException e) {
-            e.printStackTrace(System.err);
-        }
-        return result;
-    }
-
-    public void dropTables() {
-        System.out.println("Suppression définitive des tables\n...");
-        Iterator<String> iterator = this.jsonParse.parseArray("dropTables");
+    private <T> void browseIterator(Iterator<T> iterator) {
         while (iterator.hasNext()) {
-            String query = iterator.next();
+            String query = (String) iterator.next();
             try {
-                // Delete the specified table
+                // Execute query
                 PreparedStatement statement = this.connection.prepareStatement(query);
                 statement.executeUpdate();
                 statement.close();
@@ -399,46 +352,28 @@ public class Database {
                 throwables.printStackTrace();
             }
         }
-        // Commit at the end off drop tables
+        // Commit at the end
         commit();
+    }
+
+    public void dropTables() {
+        System.out.println("Suppression définitive des tables\n...");
+        Iterator<String> iterator = this.jsonParse.parseArray("dropTables");
+        browseIterator(iterator);
         System.out.println("Suppression terminée");
     }
 
     public void resetTables() {
         System.out.println("Remise à zéro des tables\n...");
         Iterator<String> iterator = this.jsonParse.parseArray("resetTables");
-        while (iterator.hasNext()) {
-            String query = iterator.next();
-            try {
-                // Reset the specified table
-                // TRUNCATE is used to reset auto-increment
-                PreparedStatement statement = this.connection.prepareStatement(query);
-                statement.executeUpdate();
-                statement.close();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-        }
-        // Commit at the end off reset tables
-        commit();
+        browseIterator(iterator);
         System.out.println("Remise à zéro terminée");
     }
 
     public void createTables() {
         System.out.println("Création des tables\n...");
         Iterator<String> iterator = this.jsonParse.parseArray("createTable");
-        while (iterator.hasNext()) {
-            String createQuery = iterator.next();
-            try {
-                PreparedStatement statement = this.connection.prepareStatement(createQuery);
-                statement.executeUpdate();
-                statement.close();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-        }
-        // Commit at the end off tables creation
-        commit();
+        browseIterator(iterator);
         System.out.println("Création terminée");
     }
 

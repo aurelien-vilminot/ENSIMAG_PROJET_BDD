@@ -23,11 +23,13 @@ public class JSONParse {
 
     public Iterator<String> parseArray(String nameArray) {
         JSONArray jsonArray = (JSONArray) this.jsonFile.get(nameArray);
-        return (Iterator<String>) jsonArray.iterator();
+        @SuppressWarnings("unchecked") Iterator<String> iterator = (Iterator<String>) jsonArray.iterator();
+        return iterator;
     }
 
     public Iterator<ArrayList<Float>> parseFloatArray(String nameArray) {
         JSONArray jsonArray = (JSONArray) this.jsonFile.get(nameArray);
-        return (Iterator<ArrayList<Float>>) jsonArray.iterator();
+        @SuppressWarnings("unchecked") Iterator<ArrayList<Float>> iterator = (Iterator<ArrayList<Float>>) jsonArray.iterator();
+        return iterator;
     }
 }

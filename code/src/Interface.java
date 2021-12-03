@@ -1,5 +1,4 @@
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Interface {
     // String menu template : {"• Title •", "element1", ""element2"}
@@ -24,6 +23,7 @@ public class Interface {
     }
 
     public void userConnection() {
+        clearScreen();
         while (true) {
             System.out.println("• CONNEXION UTILISATEUR •");
             System.out.println("Saisir votre e-mail :");
@@ -32,12 +32,12 @@ public class Interface {
             this.userPwd = getInput();
             if (this.database.userConnection(this.userMail, this.userPwd)) {
                 this.idCompte = this.database.getIdCompte(this.userMail);
-                System.out.println("Connexion réussie !");
                 break;
             }
+            clearScreen();
             System.out.println("! Échec de la connexion !");
         }
-        Interface.clearScreen();
+        clearScreen();
     }
 
     public static String getInput() {
@@ -67,6 +67,7 @@ public class Interface {
     }
 
     public void menuUserInput() {
+        clearScreen();
         menuShow(this.menuItems);
 
         switch (getInput()) {
@@ -76,7 +77,7 @@ public class Interface {
             }
             case "2" -> forgetRights();
             case "3" -> {
-                Interface.clearScreen();
+                clearScreen();
                 System.out.println("Déconnection");
                 this.isRunning = false;
                 database.closeConnection();
@@ -87,6 +88,7 @@ public class Interface {
     }
 
     public void forgetRights() {
+        clearScreen();
         System.out.println("Voulez-vous vraiment appliquer le droit à l'oubli ?\n" +
                 "Cela supprimera totalement vos informations personnelles.");
         menuShow(this.yesNoItems);
@@ -95,17 +97,13 @@ public class Interface {
             case "1" -> {
                 // Delete user information
                 this.database.forgetRight(this.userMail);
-                Interface.clearScreen();
+                clearScreen();
                 System.out.println("Déconnection");
                 this.isRunning = false;
                 userConnection();
             }
             case "2" -> menuUserInput();
-            default -> {
-                Interface.clearScreen();
-                forgetRights();
-
-            }
+            default -> forgetRights();
         }
     }
 
@@ -133,7 +131,7 @@ public class Interface {
 
             // Add products to the list
             subCategories.addAll(productList
-                    .stream().map(Database.ProductSummary::name).collect(Collectors.toList())); // get only the name
+                    .stream().map(Database.ProductSummary::name).toList()); // get only the name
             subCategories.add("Retour");
             arrayToDisplay.addAll(subCategories);
             menuShow(arrayToDisplay);
@@ -143,7 +141,7 @@ public class Interface {
                 int input = Integer.parseInt(getInput());
                 if (input == backId) {
                     // Back to the precedent category
-                    Interface.clearScreen();
+                    clearScreen();
                     backToPrecCategory();
                     return;
                 } else if (input > nbSubCategories) {
@@ -151,14 +149,17 @@ public class Interface {
                     // Backup the name of the product category
                     int productId = productList.get(input - nbSubCategories - 1).id();
                     backupPath(String.valueOf(productId));
+                    clearScreen();
                     displayProduct(productId);
                 } else {
                     // The user input is indexed starting from 1:
                     // subtract 1 to get the correct category index
+                    clearScreen();
                     displayCategories(subCategories.get(input - 1));
                 }
             } catch (NumberFormatException | IndexOutOfBoundsException e) {
                 // If the input is not correct, re-display the same categories
+                clearScreen();
                 displayCategories(nameSubCategory);
             }
         }
@@ -206,13 +207,13 @@ public class Interface {
         ArrayList<String> menuProductList = new ArrayList<>();
         menuProductList.add("Veuillez sélectionner un produit :");
         menuProductList.addAll(productList
-                .stream().map(Database.ProductSummary::name).collect(Collectors.toList()));
+                .stream().map(Database.ProductSummary::name).toList());
         menuProductList.add("Retour");
         menuShow(menuProductList);
         try {
             int input = Integer.parseInt(getInput());
             if (input == menuProductList.size()-1) {
-                Interface.clearScreen();
+                clearScreen();
                 backToPrecCategory();
                 return;
             }
@@ -220,9 +221,11 @@ public class Interface {
             int productId = productList.get(input - 1).id();
             // Backup the name of the product categorie
             this.pathOfCategorie.add(nameCategory);
+            clearScreen();
             displayProduct(productId);
         } catch (NumberFormatException |IndexOutOfBoundsException e) {
             // If the input is not correct, re-display the same products
+            clearScreen();
             displayProductList(nameCategory);
         }
     }
@@ -242,14 +245,18 @@ public class Interface {
         switch (getInput()) {
             case "1" -> askForOffer(Float.parseFloat(product.get(1)), productId);
             case "2" -> {
-                Interface.clearScreen();
+                clearScreen();
                 backToPrecCategory();
             }
-            default -> displayProduct(productId);
+            default -> {
+                clearScreen();
+                displayProduct(productId);
+            }
         }
     }
 
     public void displayRecommanded() {
+        clearScreen();
         ArrayList<String> recommendedCategories = this.database.getRecommendedCategories(idCompte);
         recommendedCategories.add("Retour");
         recommendedCategories.add(0, "• CATÉGORIES RECOMMANDÉES •");
@@ -269,6 +276,7 @@ public class Interface {
             }
         } catch (NumberFormatException | IndexOutOfBoundsException e) {
             // If the input is not correct, re-display the same categories
+            clearScreen();
             displayRecommanded();
         }
     }
@@ -279,11 +287,13 @@ public class Interface {
             try {
                 float newPrice = Float.parseFloat(getInput());
                 if (newPrice <= currentPrice) {
+                    clearScreen();
                     System.out.println("Le prix proposé est inférieur au prix courant: " + currentPrice);
                 } else {
                     Offer offer = new Offer(newPrice, productId, this.idCompte);
                     try {
                         boolean isOfferWin = offer.insertOffre(this.database);
+                        clearScreen();
                         System.out.println("Bravo, l'enchère a été effectuée !");
                         if (isOfferWin) {
                             System.out.println("Bravo, vous êtes le gagnant de cette enchère !");
@@ -307,20 +317,23 @@ public class Interface {
     }
 
     public void catalogueMenuUserInput() {
+        clearScreen();
         this.pathOfCategorie.clear();
         menuShow(this.catalogeMenuItems);
 
         switch (getInput()) {
             case "1" -> {
                 // Display catalogue
+                clearScreen();
                 displayCategories(null);
             }
             case "2" -> {
                 // Display catalogue with recommended categories
+                clearScreen();
                 displayRecommanded();
             }
             case "3" -> {
-                Interface.clearScreen();
+                clearScreen();
                 menuUserInput();
             }
             default -> catalogueMenuUserInput();

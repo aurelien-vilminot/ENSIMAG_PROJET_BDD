@@ -15,6 +15,7 @@ public class DatabaseManagement {
         DatabaseManagement databaseManagement = new DatabaseManagement();
         Database database = new Database();
 
+        Interface.clearScreen();
         Interface.menuShow(databaseManagement.menuItems);
         while (true) {
             switch (Interface.getInput()) {
@@ -37,7 +38,10 @@ public class DatabaseManagement {
                     database.fillOffers();
                     main(args);
                 }
-                case "5" -> System.exit(0);
+                case "5" -> {
+                    Interface.clearScreen();
+                    System.exit(0);
+                }
             }
         }
     }
