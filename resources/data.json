@@ -9,7 +9,7 @@
         "CREATE TABLE Offre(idProd integer CONSTRAINT FKProdOffre NOT NULL REFERENCES Produit (idProd), dateOffre date NOT NULL,prixOffre float CONSTRAINT PrixPositif NOT NULL CHECK(prixOffre > 0), idCompte integer NOT NULL CONSTRAINT FKCompteOffre REFERENCES COMPTE(idCompte), CONSTRAINT PKOffre PRIMARY KEY (idProd, dateOffre))",
         "CREATE TABLE CaracProduit(idProd integer NOT NULL CONSTRAINT FKidProCarac REFERENCES Produit(idProd),caracProd varchar(30) NOT NULL,valeurProd varchar(100) NOT NULL,CONSTRAINT PKCaracProduit PRIMARY KEY (idProd, caracProd))",
         "CREATE TABLE APourMere(filleCategorie varchar(30) CONSTRAINT FKfille NOT NULL REFERENCES Categorie(nomCategorie),mereCategorie varchar(30) CONSTRAINT FKmere NOT NULL REFERENCES Categorie(nomCategorie), PRIMARY KEY(filleCategorie))",
-        "CREATE TABLE OffreGagnante (dateOffre DATE NOT NULL,idProd integer NOT NULL CONSTRAINT FKProdGagnant REFERENCES Produit(idProd),PRIMARY KEY (dateOffre, idProd))"
+        "CREATE TABLE OffreGagnante(dateOffre date NOT NULL, idProd integer NOT NULL, PRIMARY KEY (dateOffre, idProd), FOREIGN KEY (dateOffre, idProd) REFERENCES Offre(dateOffre, idProd))"
     ],
     "resetTables": [
         "TRUNCATE TABLE OFFREGAGNANTE",

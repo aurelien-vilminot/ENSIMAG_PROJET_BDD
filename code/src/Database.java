@@ -284,14 +284,16 @@ public class Database {
         return caracs;
     }
 
-    public void addOffer(Offer offer) {
+    public boolean addOffer(Offer offer) throws IllegalAccessError {
         try {
+            // Insert offer
             PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFRE VALUES (?, ?, ?, ?)");
             insertStmt.setInt(1, offer.getIdProduct());
             insertStmt.setDate(2, offer.getDate());
             insertStmt.setFloat(3, offer.getPrice());
             insertStmt.setInt(4, offer.getIdCompte());
             insertStmt.executeUpdate();
+            insertStmt.close();
 
             PreparedStatement updateStmt = this.connection.prepareStatement(
                     "UPDATE PRODUIT SET PrixCProd=? WHERE IDPROD=?"
@@ -299,18 +301,51 @@ public class Database {
             updateStmt.setFloat(1, offer.getPrice());
             updateStmt.setInt(2, offer.getIdProduct());
             updateStmt.executeUpdate();
-
-            // Commit and close statements
-            insertStmt.close();
             updateStmt.close();
+
+            // Query number
+            int result = 0;
+            PreparedStatement stmt = this.connection.prepareStatement(
+                    "SELECT COUNT(IDPROD) as NbOffres " +
+                        "FROM OFFRE " +
+                        "WHERE IDPROD =?"
+            );
+            stmt.setInt(1, offer.getIdProduct());
+            ResultSet rset = stmt.executeQuery();
+
+            while (rset.next()) {
+                result = rset.getInt(1);
+            }
+            rset.close();
+            stmt.close();
+
+            if (result == Offer.NB_MAX_OFFER) {
+                commit();
+                PreparedStatement winStmt = this.connection.prepareStatement(
+                        "INSERT INTO OFFREGAGNANTE VALUES (?, ?)"
+                );
+                winStmt.setDate(1, offer.getDate());
+                winStmt.setInt(2, offer.getIdProduct());
+                winStmt.executeUpdate();
+                winStmt.close();
+            } else if (result > Offer.NB_MAX_OFFER) {
+                this.connection.rollback();
+                throw new IllegalAccessError();
+            }
             commit();
+            return (result == Offer.NB_MAX_OFFER);
         } catch (SQLException e) {
             e.printStackTrace(System.err);
+            return false;
         }
     }
 
     public void setOfferWin(Offer offer) {
         try {
+            // Add the offer to offer table
+            addOffer(offer);
+
+            // Add to the win offer table
             PreparedStatement insertStmt = this.connection.prepareStatement(
                     "INSERT INTO OFFREGAGNANTE VALUES (?, ?)"
             );
@@ -319,8 +354,7 @@ public class Database {
             insertStmt.executeUpdate();
             insertStmt.close();
 
-            // Add the offer to offer table and commit at the end of the function
-            addOffer(offer);
+            commit();
         } catch (SQLException e) {
             e.printStackTrace(System.err);
         }
@@ -344,7 +378,7 @@ public class Database {
 
             rset.close();
             stmt.close();
-            // Do not commit yet, since we need to add offer
+            commit();
         } catch (SQLException e) {
             e.printStackTrace(System.err);
         }

@@ -10,7 +10,7 @@ public class Offer {
 	private int idProduit;
 	private int idCompte;
 	private Date date;
-	private final static int NB_MAX_OFFER = 5;
+	public final static int NB_MAX_OFFER = 5;
 
 	public Offer(float newPrice, int idProduct, int idCompte) {
 		this.newPrice = newPrice;
@@ -31,16 +31,7 @@ public class Offer {
 	}
 
 	public boolean insertOffre(Database db) throws IllegalAccessError {
-		int nbOffers = db.nbOffers(this.idProduit);
-		if (nbOffers == NB_MAX_OFFER - 1) {
-			db.setOfferWin(this);
-			return true;
-		} else if (nbOffers >= NB_MAX_OFFER) {
-			throw new IllegalAccessError();
-		} else {
-			db.addOffer(this);
-			return false;
-		}
+		return db.addOffer(this);
 	}
 
 	public float getPrice() {
