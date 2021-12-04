@@ -83,6 +83,11 @@ COMMIT;
 -- Insérer une offre (les contraintes sont vérifiées dans le code)
 -- Dans l'application Gange, CURRENT_DATE est sauvegardé pour avoir la même valeur lors des deux insertions
 INSERT INTO OFFRE VALUES (1, CURRENT_DATE, 900, 1);
+-- Connaître le prix courant du produit au sein de la transaction
+SELECT PRIXCPROD FROM PRODUIT WHERE IDPROD = 1;
+-- Si le prix est supérieur ou égal au prix de l'offre, ROLLBACK
+ROLLBACK;
+-- Sinon, la transaction se poursuit
 UPDATE PRODUIT SET PrixCProd = 900 WHERE IDPROD = 1;
 -- Connaître le nombre d'offres faites sur un produit
 SELECT COUNT(IDPROD) as NbOffres FROM OFFRE WHERE IDPROD = 1;
