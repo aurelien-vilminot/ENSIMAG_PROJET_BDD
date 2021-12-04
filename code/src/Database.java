@@ -284,7 +284,7 @@ public class Database {
         return caracs;
     }
 
-    public boolean addOffer(Offer offer) throws IllegalAccessError {
+    public boolean addOffer(Offer offer) throws IllegalAccessError, IllegalStateException {
         try {
             // Insert offer
             PreparedStatement insertStmt = this.connection.prepareStatement("INSERT INTO OFFRE VALUES (?, ?, ?, ?)");
@@ -295,6 +295,22 @@ public class Database {
             insertStmt.executeUpdate();
             insertStmt.close();
 
+            PreparedStatement statement = this.connection.prepareStatement(
+                    "SELECT PRIXCPROD FROM PRODUIT WHERE IDPROD =?"
+            );
+            statement.setInt(1, offer.getIdProduct());
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+            int currentPrice = resultSet.getInt(1);
+            resultSet.close();
+            statement.close();
+
+            // Check if the current price is lower than offer's inside the transaction
+            if (currentPrice >= offer.getPrice()) {
+                this.connection.rollback();
+                throw new IllegalStateException();
+            }
+
             PreparedStatement updateStmt = this.connection.prepareStatement(
                     "UPDATE PRODUIT SET PrixCProd=? WHERE IDPROD=?"
             );
@@ -303,8 +319,7 @@ public class Database {
             updateStmt.executeUpdate();
             updateStmt.close();
 
-            // Query number
-            int result = 0;
+            // Count number offers
             PreparedStatement stmt = this.connection.prepareStatement(
                     "SELECT COUNT(IDPROD) as NbOffres " +
                         "FROM OFFRE " +
@@ -312,14 +327,12 @@ public class Database {
             );
             stmt.setInt(1, offer.getIdProduct());
             ResultSet rset = stmt.executeQuery();
-
-            while (rset.next()) {
-                result = rset.getInt(1);
-            }
+            rset.next();
+            int currentNbOffers = rset.getInt(1);
             rset.close();
             stmt.close();
 
-            if (result == Offer.NB_MAX_OFFER) {
+            if (currentNbOffers == Offer.NB_MAX_OFFER) {
                 commit();
                 PreparedStatement winStmt = this.connection.prepareStatement(
                         "INSERT INTO OFFREGAGNANTE VALUES (?, ?)"
@@ -328,12 +341,12 @@ public class Database {
                 winStmt.setInt(2, offer.getIdProduct());
                 winStmt.executeUpdate();
                 winStmt.close();
-            } else if (result > Offer.NB_MAX_OFFER) {
+            } else if (currentNbOffers > Offer.NB_MAX_OFFER) {
                 this.connection.rollback();
                 throw new IllegalAccessError();
             }
             commit();
-            return (result == Offer.NB_MAX_OFFER);
+            return (currentNbOffers == Offer.NB_MAX_OFFER);
         } catch (SQLException e) {
             e.printStackTrace(System.err);
             return false;

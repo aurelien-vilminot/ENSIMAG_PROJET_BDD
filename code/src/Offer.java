@@ -26,13 +26,7 @@ public class Offer {
 		this.date = new java.sql.Date(currentDate.getTime());
 	}
 
-	public boolean insertOffre(Database db, float productPrice) throws IllegalAccessError, IllegalStateException {
-		// Verify that price has not changed
-		ArrayList<String> product = db.getProduct(this.getIdProduct());
-		float currentPrice = Float.parseFloat(product.get(1));
-		if (productPrice != currentPrice) {
-			throw new IllegalStateException();
-		}
+	public boolean insertOffre(Database db) throws IllegalAccessError, IllegalStateException {
 		return db.addOffer(this);
 	}
 

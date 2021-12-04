@@ -295,7 +295,7 @@ public class Interface {
                 } else {
                     try {
                         Offer offer = new Offer(newPrice, productId, this.idCompte);
-                        boolean isOfferWin = offer.insertOffre(this.database, currentPrice);
+                        boolean isOfferWin = offer.insertOffre(this.database);
                         clearScreen();
                         System.out.println("Bravo, l'enchère a été effectuée !");
                         if (isOfferWin) {
@@ -310,7 +310,7 @@ public class Interface {
                         return;
                     } catch (IllegalStateException e) {
                         clearScreen();
-                        System.out.println("Un problème est intervenu, veuillez réessayer !");
+                        System.out.println("Une enchère a été réalisée entre temps, veuillez réessayer !");
                         break;
                     }
                 }
