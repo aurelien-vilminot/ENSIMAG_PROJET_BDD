@@ -1,9 +1,5 @@
 import java.sql.Date;
-import java.sql.Time;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.math.*;
-import java.nio.channels.spi.SelectorProvider;
 
 public class Offer {
 	private float newPrice;
