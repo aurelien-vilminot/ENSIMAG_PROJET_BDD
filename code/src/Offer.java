@@ -26,7 +26,13 @@ public class Offer {
 		this.date = new java.sql.Date(currentDate.getTime());
 	}
 
-	public boolean insertOffre(Database db) throws IllegalAccessError {
+	public boolean insertOffre(Database db, float productPrice) throws IllegalAccessError, IllegalStateException {
+		// Verify that price has not changed
+		ArrayList<String> product = db.getProduct(this.getIdProduct());
+		float currentPrice = Float.parseFloat(product.get(1));
+		if (productPrice != currentPrice) {
+			throw new IllegalStateException();
+		}
 		return db.addOffer(this);
 	}
 
@@ -59,7 +65,7 @@ public class Offer {
 				e.printStackTrace();
 			}
 			int idCompte = Math.round(((Number) it.next()).floatValue());
-            (new Offer(newPrice, idProduct, idCompte, delay++)).insertOffre(database);
+			database.addOffer(new Offer(newPrice, idProduct, idCompte, delay++));
         }
 		System.out.println("Remplissage des offres terminé");
 	}

@@ -246,7 +246,7 @@ public class Interface {
 
         menuShow(this.bidItems);
         switch (getInput()) {
-            case "1" -> askForOffer(Float.parseFloat(product.get(1)), productId);
+            case "1" -> askForOffer(productId, Float.parseFloat(product.get(1)));
             case "2" -> {
                 clearScreen();
                 backToPrecCategory();
@@ -284,38 +284,42 @@ public class Interface {
         }
     }
 
-    public void askForOffer(float currentPrice, int productId) {
+    public void askForOffer(int productId, float currentPrice) {
         while (true) {
-            System.out.println("Entrez un prix:");
             try {
+                System.out.println("Entrez un prix:");
                 float newPrice = Float.parseFloat(getInput());
                 if (newPrice <= currentPrice) {
                     clearScreen();
                     System.out.println("Le prix proposé est inférieur au prix courant: " + currentPrice);
                 } else {
-                    Offer offer = new Offer(newPrice, productId, this.idCompte);
                     try {
-                        boolean isOfferWin = offer.insertOffre(this.database);
+                        Offer offer = new Offer(newPrice, productId, this.idCompte);
+                        boolean isOfferWin = offer.insertOffre(this.database, currentPrice);
                         clearScreen();
                         System.out.println("Bravo, l'enchère a été effectuée !");
                         if (isOfferWin) {
                             System.out.println("Bravo, vous êtes le gagnant de cette enchère !");
                             backToPrecCategory();
+                            return;
                         }
                         break;
                     } catch (IllegalAccessError e) {
                         System.out.println("Vous ne pouvez pas faire un enchère, le produit n'existe plus !");
                         backToPrecCategory();
                         return;
+                    } catch (IllegalStateException e) {
+                        clearScreen();
+                        System.out.println("Un problème est intervenu, veuillez réessayer !");
+                        break;
                     }
                 }
             } catch (NumberFormatException e) {
                 // Ask again
-                askForOffer(currentPrice, productId);
+                askForOffer(productId, currentPrice);
                 return;
             }
         }
-
         displayProduct(productId);
     }
 
