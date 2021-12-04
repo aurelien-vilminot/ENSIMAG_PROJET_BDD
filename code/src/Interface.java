@@ -24,6 +24,7 @@ public class Interface {
 
     public void userConnection() {
         clearScreen();
+        this.pathOfCategorie.clear();
         while (true) {
             System.out.println("• CONNEXION UTILISATEUR •");
             System.out.println("Saisir votre e-mail :");
@@ -68,6 +69,7 @@ public class Interface {
 
     public void menuUserInput() {
         clearScreen();
+        this.pathOfCategorie.clear();
         menuShow(this.menuItems);
 
         switch (getInput()) {
@@ -101,6 +103,7 @@ public class Interface {
                 System.out.println("Déconnection");
                 this.isRunning = false;
                 userConnection();
+                menuUserInput();
             }
             case "2" -> menuUserInput();
             default -> forgetRights();
