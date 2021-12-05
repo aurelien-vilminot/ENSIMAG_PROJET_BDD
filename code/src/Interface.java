@@ -292,6 +292,7 @@ public class Interface {
                 if (newPrice <= currentPrice) {
                     clearScreen();
                     System.out.println("Le prix proposé est inférieur au prix courant: " + currentPrice);
+                    break;
                 } else {
                     try {
                         Offer offer = new Offer(newPrice, productId, this.idCompte);
