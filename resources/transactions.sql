@@ -26,11 +26,10 @@ COMMIT;
 SELECT p.nomCategorie AS nomCategorie, count(o.dateOffre) AS nb, 0 AS union_order
 FROM Offre o, Produit p
 WHERE o.idProd = p.idProd
-AND o.idCompte = 1
+AND o.idCompte = 2
 AND NOT EXISTS (SELECT *
-                FROM OffreGagnante og
-                WHERE o.dateOffre = og.dateOffre
-                AND o.idProd = og.idProd)
+                FROM OffreGagnante og, Offre off
+                WHERE og.dateOffre = off.dateOffre AND og.idProd = off.idProd AND o.idProd = og.idProd AND off.idCompte = 2)
 GROUP BY p.nomCategorie
 UNION
 -- Deuxième sélection sur les recommandations générales, en enlevant les catégories qui apparaissent dans la première requête
@@ -40,13 +39,13 @@ WHERE o.idProd = p.idProd
 AND p.nomCategorie NOT IN (SELECT p.nomCategorie
                            FROM Offre o, Produit p
                            WHERE o.idProd = p.idProd
-                           AND o.idCompte = 1
+                           AND o.idCompte = 2
                            AND NOT EXISTS (SELECT *
-                                           FROM OffreGagnante og
-                                           WHERE o.dateOffre = og.dateOffre
-                                           AND o.idProd = og.idProd))
+                                           FROM OffreGagnante og, Offre off
+                                           WHERE og.dateOffre = off.dateOffre AND og.idProd = off.idProd AND o.idProd = og.idProd AND off.idCompte = 2))
 GROUP BY p.nomCategorie
 ORDER BY union_order, nb DESC, nomCategorie;
+
 
 COMMIT;
 
