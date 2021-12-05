@@ -13,12 +13,17 @@ RECOMMANDATIONS GENERALES :
 Smartphones > Tablettes > appareils photo numérique = chaussures de sport > chaussures de ville > caméras de sport > accessoires de tablette > accessoires de smartphones
 
 EXEMPLE DE ROOT2:
-Il a fait 1 achat "Chaussures de ville", 1 achat "Appareils photo numérique", 1 achat "Smartphones", 3 achat "Tablettes" dont 1 gagnant, et 2 achat "Accessoires de spartphones"
--> ses recommandations personnalisées afficheront "Accessoires smartphones = Tablettes > Appareil photo = Chaussures dev ilel = Smartphone"
+
+Il a fait 1 achat "Chaussures de ville", 1 achat "Appareils photo numérique", 1 achat "Smartphone", 2 achats sur une même "tablettes" dont 1 gagnant et 1 achat sur une tablette sans la remporter, 3 achat "Tablettes" dont 1 gagnant, et 2 achat "Accessoires de spartphones"
+-> ses recommandations personnalisées afficheront "Accessoires smartphones = > Appareil photo = Chaussures de ville = Smartphone = Tablettes" [Tablette est donc dernier car une seul offre est comptée, celle sur la tablette dont il n'a pas fait l'achat]
 
 EXEMPLE DE ROOT3
 Il a fait 1 achat "Chaussures sport", 1 achat "Appareils photo numérique", 1 achat "Smartphone" gagné, 2 achats "Tablettes"
 -> ses recommandations personnalisées afficheront "Tablettes > Appareil photo numérique = Chaussures de sport" mais pas de Smartphone
+
+EXEMPLE DE ROOT6
+Il a fait 1 achat "Chaussures de ville", 2 achats "Caméras de sport", 1 achat "Tablettes" gagnant, 2 achats "Accessoires de smartphones"
+-> ses recommandations personnalisées afficheront "Accessoires de smartphones = Caméras de sport > Chaussure de ville" et pas Tablettes [Tablettes sera afficher dans les reco générales, en dessous de Smartphone]
 
 EXEMPLE DE ROOT10
 Il a fait aucun achat, pas de recommandations personnalisées, que des recommandations générales
@@ -39,6 +44,10 @@ Une offre qui est instant gagnante sur "High tech - Photo & Vidéo - Appareil ph
 EXEMPLE DROIT A L'OUBLI
 Se connecter avec root/root, exercer son droit à l'oubli, puis on ne peut plus se reconnecter
 Se connecter avec root2/root2, montrer que l'offre sur "ProGo HERO8" est gagnante donc cela garde dans la BD les offres de root/root
+
+EXEMPLE D'ACCES SIMULTANEES:
+- Sur "Coque 9S" (0 offre actuellement)
+- Sur "Chaussures de sport NEXT" (4 offres actuellement)
 
 JEUX DE TESTS
 
